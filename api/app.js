@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
+const driver = require("./neo4j-db/db");
 const app = express();
 
 // body-parser middleware
