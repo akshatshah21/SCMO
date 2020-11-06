@@ -1,5 +1,5 @@
 module.exports = {
-  NEO4J_DATABASE_URL: "YOUR_DB_URL",
-  NEO4J_USER: "USERNAME",
-  NEO4J_PASSWORD: "PASSWORD",
+  NEO4J_DATABASE_URL: "bolt://localhost:7687",
+  NEO4J_USER: "neo4j",
+  NEO4J_PASSWORD: "password",
 };
