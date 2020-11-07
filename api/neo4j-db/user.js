@@ -8,6 +8,10 @@ module.exports = {
      */
     addUser: (username, password) => {
         console.log(`Add user: ${username} ${password}`);
+        // TODO
+        // The check of user already existing is already done
+        // Hash password before saving
+        // May need to change signature to allow an object instead of (username, password), since info about stage is also required to make the relationship IS_USER_OF.
     },
 
     /**
