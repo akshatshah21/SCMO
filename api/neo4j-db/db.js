@@ -14,12 +14,16 @@ let session = driver.session({
 });
 
 // Test
+/*
 session.run("MATCH (n) RETURN n;").subscribe({
   onKeys: (keys) => {
     console.log(keys);
   },
   onNext: (record) => {
-    console.log(record.forEach((entry) => console.log(entry)));
+    record.forEach((entry) => {
+      console.log(entry);
+      console.log(typeof entry);
+    });
   },
   onCompleted: () => {
     session.close(); // returns a Promise
@@ -28,5 +32,6 @@ session.run("MATCH (n) RETURN n;").subscribe({
     console.log(error);
   },
 });
+*/
 
 module.exports = driver;
