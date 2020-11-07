@@ -1,0 +1,5 @@
+module.exports = {
+    NEO4J_DB_URL: "NEO4J-DATABASE-URL",
+    NEO4J_USERNAME: "USERNAME",
+    NEO4J_PASSWORD: "PASSWORD",
+};
