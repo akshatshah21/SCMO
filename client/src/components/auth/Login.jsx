@@ -5,7 +5,11 @@ import classnames from "classnames";
 
 import { loginUser } from "../../redux/actions/authActions";
 
-function Login({ loginUser, errors, auth }) {
+function Login({ loginUser, errors, auth, history }) {
+  if (auth.isAuthenticated) {
+    history.push("/");
+  }
+
   const [input, setInput] = useState({
     username: "",
     password: "",
@@ -26,6 +30,7 @@ function Login({ loginUser, errors, auth }) {
       username: input.username,
       password: input.password,
     };
+    loginUser(userData);
   };
   return (
     <div className="col s6 offset-s3">

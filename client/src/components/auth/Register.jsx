@@ -31,7 +31,7 @@ function Register({ registerUser, errors, auth, history }) {
     };
 
     console.log(newUser);
-    registerUser(newUser, history);;;
+    registerUser(newUser, history);
   };
 
   return (
