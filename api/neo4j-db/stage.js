@@ -1,4 +1,4 @@
-import driver from "./db.js";
+const driver = require("./db");
 
 module.exports = {
     /**

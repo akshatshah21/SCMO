@@ -1,40 +1,72 @@
-import driver from "./db.js";
+const driver = require("./db");
+const bcrypt = require("bcryptjs");
+
 
 module.exports = {
     /**
      * Add a user as a node in the database
-     * @param1 {String} username - The username of the user
-     * @param2 {String} password - The password of the user
+     * @param {Object} user - The details of the user: username, password
+    Note: The check of user already existing is already done
      */
-    addUser: (username, password) => {
-        console.log(`Add user: ${username} ${password}`);
+    addUser: async (user) => {
+        console.log(`Add user: ${user.username} ${user.password}`);
         // TODO
-        // The check of user already existing is already done
-        // Hash password before saving
-        // May need to change signature to allow an object instead of (username, password), since info about stage is also required to make the relationship IS_USER_OF.
+        // info about stage is also required to make the relationship IS_USER_OF.
+        try {
+            let salt = await bcrypt.genSalt(10);
+            let hash = await bcrypt.hash(user.password, salt);
+            
+            let session = driver.session();
+            await session.run("CREATE (u:User { username: $username, password: $password });",
+            {
+                username: user.username,
+                password: hash
+            })
+            await session.close();
+        } catch (err) {
+            console.log(`[ERR] addUser(): ${err}`);
+        }
     },
 
     /**
      * Get a user by its username
      * @param {String} username - username of the user
-     * @return {Object} - The User Node object
+     * @return {Object} - The User Node's properties
      */
-    getUserByUsername: (username) => {
+    getUserByUsername: async(username) => {
         console.log(`Get user: ${username}`);
+        try {
+            let session = driver.session();
+            let result = await session.run("MATCH (u:User { username: $username }) RETURN u;", 
+            {
+                username
+            });
+            let user;
+            if(result.records[0]) {
+                console.log(result.records[0].get("u").properties);   
+                user = result.records[0].get("u").properties;
+            }
+            await session.close();
+            return user;
+        } catch (err) {
+            console.log(`[ERR] getUserByUsername(): ${err}`);
+        }
     },
 
     /**
-     * Get a user by its id
-     * @param {Number} id - The id of the user
-     * @return {Object} - The User Node object
-     */
-    getUserById: (id) => {},
-
-    /**
      * Remove a user
-     * @param {Number} id - The id of the user to be removed
+     * @param {String} username - The username of the user to be removed
      */
-    removeUser: (id) => {
-        console.log(`Remove user: ${id}`);
+    removeUser: async (username) => {
+        console.log(`Remove user: ${username}`);
+        try {
+            let session = driver.session();
+            let result = await session.run("MATCH (u:User { username: $username }) DETACH DELETE u;",
+            {
+                username
+            })
+        } catch (err) {
+            console.log(`[ERR] removeUser(): ${err}`);
+        }
     },
 };

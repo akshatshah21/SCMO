@@ -1,17 +1,17 @@
 const neo4j = require("neo4j-driver");
 const {
-  NEO4J_DATABASE_URL,
-  NEO4J_USER,
+  NEO4J_DB_URL,
+  NEO4J_USERNAME,
   NEO4J_PASSWORD,
 } = require("../config/keys");
 const driver = neo4j.driver(
-  NEO4J_DATABASE_URL,
-  neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD)
+  NEO4J_DB_URL,
+  neo4j.auth.basic(NEO4J_USERNAME, NEO4J_PASSWORD)
 );
 
-let session = driver.session({
-  database: "neo4j",
-});
+// let session = driver.session({
+//   database: "neo4j",
+// });
 
 // Test
 /*

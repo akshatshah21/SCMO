@@ -1,10 +1,10 @@
-import driver from "./db";
+const driver = require("./db");
 
 module.exports = {
     /**
      * Add a Connection between two stages, as a node in the database
-     * @param1 {Number} sourceId - The id of the source stage
-     * @param2 {Number} destinationId - The id of the destination stage
+     * @param {Number} sourceId - The id of the source stage
+     * @param {Number} destinationId - The id of the destination stage
      */
     addConnection: (stage1Id, stage2Id) => {},
 
@@ -17,8 +17,8 @@ module.exports = {
 
     /**
      * Get the Connection between two stages
-     * @param1 {Number} stage1Id - id of the first stage
-     * @param2 {Number} stage2Id - id of the second stage
+     * @param {Number} stage1Id - id of the first stage
+     * @param {Number} stage2Id - id of the second stage
      * @return {Object} - The Connection Node object
      */
     getConnectionBetweenStages: (stage1Id, stage2Id) => {},

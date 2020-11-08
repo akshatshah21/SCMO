@@ -13,7 +13,6 @@ module.exports = {
         if (Validator.isEmpty(data.username)) {
             errors.name = "Username field is required";
         }
-        // TODO: Check if a user with the same username exists
 
         // Password checks
         if (Validator.isEmpty(data.password)) {
@@ -29,9 +28,6 @@ module.exports = {
         if (!Validator.equals(data.password, data.password2)) {
             errors.password2 = "Passwords must match";
         }
-
-        // TODO
-        // Check if the stage that this user is claiming to be in-charge of has any other user already assigned. If yes, add an errors.other.
 
         return {
             errors,
@@ -53,12 +49,6 @@ module.exports = {
         if (Validator.isEmpty(data.password)) {
             errors.password = "Password is required";
         }
-
-        // TODO
-        // check if username exists in the database, use getUserByUsername() helper from "./neo4j-db/users";
-        // if no user, add error
-        // if username exists, check password using bcrypt
-        // if password doesn't match, add error
 
         return {
             errors,
