@@ -1,13 +1,19 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
+import classnames from "classnames";
 
-export default function Register() {
+import { registerUser } from "../../redux/actions/authActions";
+
+function Register({ registerUser, errors, auth, history }) {
   const [input, setInput] = useState({
     username: "",
     password: "",
     password2: "",
   });
 
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setInput((prevInput) => ({
@@ -25,6 +31,7 @@ export default function Register() {
     };
 
     console.log(newUser);
+    registerUser(newUser, history);;;
   };
 
   return (
@@ -38,9 +45,13 @@ export default function Register() {
               name="username"
               value={input.username}
               onChange={handleChange}
-              error={errors.username}
+              error={errors && errors.username}
+              className={classnames({
+                invalid: errors.username
+              })}
             />
             <label htmlFor="username">Username</label>
+            <span className="red-text">{errors.username}</span>
           </div>
         </div>
         <div className="row">
@@ -50,9 +61,13 @@ export default function Register() {
               name="password"
               value={input.password}
               onChange={handleChange}
-              error={errors.password}
+              error={errors && errors.password}
+              className={classnames({
+                invalid: errors.password
+              })}
             />
             <label htmlFor="password">Password</label>
+            <span className="red-text">{errors.password}</span>
           </div>
         </div>
         <div className="row">
@@ -62,9 +77,13 @@ export default function Register() {
               name="password2"
               value={input.password2}
               onChange={handleChange}
-              error={errors.password2}
+              error={errors && errors.password2}
+              className={classnames({
+                invalid: errors.password2
+              })}
             />
             <label htmlFor="password2">Confirm Password</label>
+            <span className="red-text">{errors.password2}</span>
           </div>
         </div>
         <div className="row">
@@ -79,3 +98,16 @@ export default function Register() {
     </div>
   );
 }
+
+const mapStateToProps = (state) => ({
+  errors: state.errors,
+  auth: state.auth,
+});
+
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+};
+
+export default connect(mapStateToProps, { registerUser })(withRouter(Register));

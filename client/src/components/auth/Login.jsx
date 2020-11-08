@@ -1,12 +1,17 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import classnames from "classnames";
 
-export default function Login() {
+import { loginUser } from "../../redux/actions/authActions";
+
+function Login({ loginUser, errors, auth }) {
   const [input, setInput] = useState({
     username: "",
     password: "",
   });
 
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     setInput((prevInput) => ({
@@ -25,7 +30,7 @@ export default function Login() {
   return (
     <div className="col s6 offset-s3">
       <h2>Login</h2>
-      <form>
+      <form noValidate>
         <div className="row">
           <div className="input-field col s12">
             <input
@@ -34,8 +39,12 @@ export default function Login() {
               value={input.username}
               onChange={handleChange}
               error={errors.username}
+              className={classnames({
+                invalid: errors.username,
+              })}
             />
             <label htmlFor="username">Username</label>
+            <span className="red-text">{errors.username}</span>
           </div>
         </div>
         <div className="row">
@@ -46,8 +55,12 @@ export default function Login() {
               value={input.password}
               onChange={handleChange}
               error={errors.password}
+              className={classnames({
+                invalid: errors.password,
+              })}
             />
             <label htmlFor="password">Password</label>
+            <span className="red-text">{errors.password}</span>
           </div>
         </div>
         <div className="row">
@@ -62,3 +75,16 @@ export default function Login() {
     </div>
   );
 }
+
+const mapStateToProps = (state) => ({
+  errors: state.errors,
+  auth: state.auth,
+});
+
+Login.propTypes = {
+  loginUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired,
+};
+
+export default connect(mapStateToProps, { loginUser })(Login);
