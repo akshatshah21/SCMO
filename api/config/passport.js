@@ -9,9 +9,9 @@ const opts = {
   secretOrKey: SECRET_OR_KEY
 };
 
-module.exports = async passport => {
+module.exports = passport => {
   passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) => {
+    new JwtStrategy(opts, async (jwt_payload, done) => {
       let user = await getUserByUsername(jwt_payload.username)
       if (user) {
         return done(null, user);

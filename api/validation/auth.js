@@ -5,7 +5,7 @@ module.exports = {
     validateRegistration: (data) => {
         let errors = {};
 
-        data.username = !isEmpty(data.name) ? data.name : "";
+        data.username = !isEmpty(data.username) ? data.username : "";
         data.password = !isEmpty(data.password) ? data.password : "";
         data.password2 = !isEmpty(data.password2) ? data.password2 : "";
 

@@ -1,10 +1,12 @@
 const router = require("express").Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+
+const { validateLogin, validateRegistration } = require("../validation/auth");
 const { SECRET_OR_KEY } = require("../config/keys");
 const { addUser, getUserByUsername } = require("../neo4j-db/user");
 
-router.post("/register", (req, res) => {
+router.post("/register", async (req, res) => {
   const { errors, isValid } = validateRegistration(req.body);
   if (!isValid) {
     return res.status(400).json(errors);
@@ -17,10 +19,11 @@ router.post("/register", (req, res) => {
 
   // TODO: Check if the stage that this user is claiming to be in-charge of has any other user already assigned. If yes, add an error
 
-  await addUser(user);
+  await addUser({ username: req.body.username, password: req.body.password });
+  res.status(200).end("Done!");
 });
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
     const { errors, isValid } = validateLogin(req.body);
 
     if (!isValid) {
@@ -50,4 +53,4 @@ router.post("/login", (req, res) => {
     }
 });
 
-modules.exports = router;
+module.exports = router;
