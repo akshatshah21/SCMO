@@ -64,7 +64,8 @@ module.exports = {
             let result = await session.run("MATCH (u:User { username: $username }) DETACH DELETE u;",
             {
                 username
-            })
+            });
+            await session.close();
         } catch (err) {
             console.log(`[ERR] removeUser(): ${err}`);
         }

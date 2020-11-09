@@ -6,8 +6,8 @@ import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "../actionTypes";
 
 export const registerUser = (userData, history) => (dispatch) => {
   axios
-    .post("/api/register", userData)
-    .then((res) => history.push("/login"))
+    .post("/api/auth/register", userData)
+    .then((res) => history.push("/auth/login"))
     .catch((err) => {
       console.log(err.response.data);
       dispatch({
@@ -19,7 +19,7 @@ export const registerUser = (userData, history) => (dispatch) => {
 
 export const loginUser = (userData) => (dispatch) => {
   axios
-    .post("/api/register", userData)
+    .post("/api/auth/login", userData)
     .then((res) => {
       const { token } = res.data;
       localStorage.setItem("jwt", token);
