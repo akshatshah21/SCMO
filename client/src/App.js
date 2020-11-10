@@ -1,7 +1,9 @@
 import React from "react";
 import { Route, Link, BrowserRouter } from "react-router-dom";
+import "materialize-css/dist/css/materialize.min.css";
+import M from "materialize-css";
 
-import Warehouse from "./components/Warehouse";
+import StorageCenter from "./components/storageCenter/StorageCenter";
 
 function App() {
   return (
@@ -16,13 +18,13 @@ function App() {
               <Link to="/login">Login</Link>
             </li>
             <li>
-              <Link to="/warehouse">Warehouse</Link>
+              <Link to="/storage-center">Storage Center</Link>
             </li>
           </ul>
         </nav>
         {/* <Route path="/" component={Home}  />
         <Route path="/login" component={Login} /> */}
-        <Route path="/warehouse" component={Warehouse} />
+        <Route path="/storage-center" component={StorageCenter} />
       </div>
     </BrowserRouter>
   );
