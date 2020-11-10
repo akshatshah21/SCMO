@@ -60,8 +60,8 @@ module.exports = {
 
     /**
      * Get the Connection between two stages
-     * @param1 {Number} stage1Id - id of the first stage
-     * @param2 {Number} stage2Id - id of the second stage
+     * @param {Number} stage1Id - id of the first stage
+     * @param {Number} stage2Id - id of the second stage
      * @return {Object} - The Connection Node object
      */
     getConnectionBetweenStages: async (stage1Id, stage2Id) => {
