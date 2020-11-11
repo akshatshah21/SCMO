@@ -15,8 +15,6 @@ function Login({ loginUser, errors, auth, history }) {
     password: "",
   });
 
-  // const [errors, setErrors] = useState({});
-
   const handleChange = (e) => {
     setInput((prevInput) => ({
       ...prevInput,
