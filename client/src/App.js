@@ -5,28 +5,36 @@ import M from "materialize-css";
 
 import StorageCenter from "./components/storageCenter/StorageCenter";
 
+import { Provider } from "react-redux";
+import store from "./redux/store";
+import Authenticate from "./components/auth/Authenticate";
+
 function App() {
   return (
-    <BrowserRouter>
-      <div>
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/login">Login</Link>
-            </li>
-            <li>
+    <Provider store={store}>
+      <BrowserRouter>
+        <div>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/">Home</Link>
+              </li>
+              <li>
+                <Link to="/auth">Authenticate</Link>
+              </li>
+              <li>
               <Link to="/storage-center">Storage Center</Link>
-            </li>
-          </ul>
-        </nav>
-        {/* <Route path="/" component={Home}  />
-        <Route path="/login" component={Login} /> */}
-        <Route path="/storage-center" component={StorageCenter} />
-      </div>
-    </BrowserRouter>
+              </li>
+            </ul>
+          </nav>
+          <div className="container">
+            {/* <Route path="/" component={Home}  /> */}
+            <Route path="/auth" component={Authenticate} />
+            <Route path="/storage-center" component={StorageCenter} />
+          </div>
+        </div>
+      </BrowserRouter>
+    </Provider>
   );
 }
 
