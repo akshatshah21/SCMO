@@ -76,9 +76,11 @@ module.exports = {
                 }
             );
             let connection;
-            if(result.records[0].get('c').properties){
+            if(result.records.length>0){
                 connection = result.records[0].get('c').properties;
                 console.log(connection);
+            }else{
+                connection =-1;
             }
             await session.close();
             return connection;

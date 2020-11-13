@@ -27,11 +27,35 @@ module.exports = {
     },
 
     /**
+     * Get all Stages
+     * @return {Array} - an array of Stage Node objects
+     */
+    getAllStages: async() => {
+        try{
+            let session = driver.session();
+            let result = await session.run(
+                "MATCH (s:Stage) RETURN s;"
+                ,{}
+            );
+            let stages = [];
+            if(result.records.length>0){
+                result.records.forEach((stage) => {
+                    console.log(stage.get('s').properties);
+                    stages.push(stage.get('s').properties);
+                });
+            }
+            await session.close();
+            return stages;
+        }catch(err){
+            console.log(`[ERR] getAllStages(): ${err}`);
+        }
+    },
+
+    /**
      * Get a stage by its name
      * @param {String} name - Name of the stage
      * @return {Object} - The Stage object
      */
-
     getStageByName: async(name) => {
         try{
             let session = driver.session();
