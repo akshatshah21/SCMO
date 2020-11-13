@@ -3,19 +3,26 @@ const driver = require("./db");
 module.exports = {
     /**
      * Add a transfer node in the database
-     * @param1 {Number} connectionId - The id of the connection
      * @param2 {Object} transferDetails - Details of the transfer
      */
-    addTransfer: async(connectionId, transferDetails) => { 
+    addTransfer: async(transferDetails) => { 
         try{
             let session = driver.session();
-
+            
             await session.run(
                 "MATCH (c:Connection{connectionId:$connectionId}) "+
-                "CREATE (c)<-[:BELONGS_TO]-(t:Transfer{transferId:$transferId});"
+                "CREATE (c)<-[:BELONGS_TO]-(t:Transfer{"+
+                    "transferId : $transferId,"+
+                    "transferStatus : $transferStatus, "+
+                    "sourceCode : $sourceCode,"+
+                    "destinationCode : $destinationCode"+
+                "});"
                 ,{
-                    connectionId: connectionId,
+                    connectionId: transferDetails.connectionId,
                     transferId: transferDetails.transferId,
+                    transferStatus : transferDetails.transferStatus,
+                    sourceCode : transferDetails.sourceCode,
+                    destinationCode : transferDetails.destinationCode
                 }
             );
 
@@ -40,8 +47,81 @@ module.exports = {
             );
 
             await session.close();
+
+            let products = transferDetails.products;
+            products.forEach(async (product) => {
+                let sess = driver.session();
+                await sess.run(
+                    "MATCH (p:Product{productId:$productId}) "+
+                    "MATCH (t:Transfer{transferId:$transferId}) "+
+                    "CREATE (p)<-[:IS_PART_OF]-(t);"
+                    ,{
+                        productId : product.productId,
+                        transferId : transferDetails.transferId
+                    }
+                );
+                console.log(product);
+                await sess.close();
+            })
+
         }catch(err){
             console.log(`[ERR] addTransfer(): ${err}`);
+        }
+    },
+
+    /**
+     * check whether the source code sent is associated with a particular transfer
+     * @param {Number} code - The source code to be checked.
+     * @return {Object} - The Transfer Node object
+     */
+    getTransferBySourceCode: async(code) => {
+        try{
+            let session = driver.session();
+
+            let result = await session.run(
+                "MATCH (t:Transfer {sourceCode:$sourceCode}) return t;"
+                ,{
+                    sourceCode : code
+                }
+            );
+            let transfer;
+            if(result.records.length>0){
+                transfer = result.records[0].get('t').properties;
+                console.log(transfer);
+            }
+
+            await session.close();
+            return transfer;
+        }catch(err){
+            console.log(`[ERR] getTransferBySourceCode(): ${err}`);
+        }
+    },
+
+    /**
+     * check whether the destination code sent is associated with a particular transfer
+     * @param {Number} code - The destination code to be checked.
+     * @return {Object} - The Transfer Node object
+     */
+    getTransferByDestinationCode: async(code) => {
+        try{
+            let session = driver.session();
+
+            let result = await session.run(
+                "MATCH (t:Transfer {destinationCode:$destinationCode}) return t;"
+                ,{
+                    destinationCode : code
+                }
+            );
+            let transfer;
+            if(result.records.length>0){
+                transfer = result.records[0].get('t').properties;
+                console.log(transfer);
+            }
+
+            await session.close();
+            return transfer;
+        }catch(err){
+            console.log(`[ERR] getTransferByDestinationCode(): ${err}`);
         }
     },
 
@@ -75,7 +155,7 @@ module.exports = {
 
     /**
      * Get all the transfers of a Source
-     * @param {id} stage - The id of the Source
+     * @param {Number} stage - The id of the Source
      * @return {Array} - An array of Transfer Node objects
      */
     getTransfersOfSource: async(stage) => {
@@ -105,7 +185,7 @@ module.exports = {
 
     /**
      * Get all the transfers of a Destination
-     * @param {id} stage - The id of the Destination
+     * @param {Number} stage - The id of the Destination
      * @return {Array} - An array of Transfer Node objects
      */
     getTransfersOfDestination: async(stage) => {
@@ -131,6 +211,60 @@ module.exports = {
         }catch(err){
             console.log(`[ERR] getTransfersOfDestination(): ${err}`);
         }
-    }
+    },
 
+    /**
+     * give a list of all transfers having a particular transfer status.
+     * @param {String} code - The destination code to be checked.
+     * @return {Array} - an Array of transfer node objects.
+     */
+    getTransfersByStatus: async(status) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(
+                "MATCH (t:Transfer{ transferStatus : $transferStatus}) "+
+                "RETURN t;"
+                ,{
+                    transferStatus : status
+                }
+            );
+
+            let transfers = [];
+            if(result.records.length>0){
+                result.records.forEach((transfer) => {                        
+                    console.log(transfer.get('t').properties);
+                    transfers.push(tranfer.get('t').properties);
+                });
+            }
+
+            await session.close();
+            return transfers;
+        }catch(err){
+            console.log(`[ERR] getTransfersByStatus(): ${err}`);
+        }
+    },
+
+    /**
+     * change the transfer status of a particular transfer node object.
+     * @param {Number} id - The transfer id to be changed.
+     * @param {String} status - the status value to be changed to.
+     */
+    changeTransferStatus : async(id,status) => {
+        try{
+            let session = driver.session();
+            let trans = await session.run(
+                "MATCH (t:Transfer{ transferId : $transferId}) "+
+                "SET t.transferStatus = $transferStatus "+
+                "RETURN t;"
+                ,{
+                    transferId : id,
+                    transferStatus : status
+                }
+            );                    
+            await session.close();
+            return trans.records[0].get('t').properties;
+        }catch(err){
+            console.log(`[ERR] getTransfersByStatus(): ${err}`);
+        }
+    }
 };

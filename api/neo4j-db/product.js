@@ -22,6 +22,31 @@ module.exports = {
     },
 
     /**
+     * Get all Products
+     * @return {Array} - an array of Product Node objects
+     */
+    getAllProducts: async() => {
+        try{
+            let session = driver.session();
+            let result = await session.run(
+                "MATCH (p:Product) RETURN p;"
+                ,{}
+            );
+            let products = [];
+            if(result.records.length>0){
+                result.records.forEach((product) => {
+                    console.log(product.get('p').properties);
+                    products.push(product.get('p').properties);
+                });
+            }
+            await session.close();
+            return products;
+        }catch(err){
+            console.log(`[ERR] getAllProducts(): ${err}`);
+        }
+    },
+
+    /**
      * Get a product by its id
      * @param {Number} id - The id of the product
      * @return {Object} - The Product Node Object

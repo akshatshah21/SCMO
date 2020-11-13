@@ -25,9 +25,11 @@
     "express": "^4.17.1",
     "is-empty": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
+    "nanoid": "^3.1.16",
     "neo4j-driver": "^4.1.2",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
+    "uuid": "^8.3.1",
     "validator": "^13.1.17"
   },
   "devDependencies": {
