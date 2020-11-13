@@ -5,13 +5,17 @@ export default function Inventory() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const getProducts = async() => {
+    const getProducts = async () => {
       // Get all products for this stage
-      // let res = await axios.get("/api/product"); // something like this, also specify stage id
-      // Dummy
-      let res = { data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] };
-      setProducts(res.data.map(product => ({ id: product, name: "Doughnuts", quantity: 720})));
-    }
+      let res = await axios.get("/api/product"); // something like this, also specify stage id
+      setProducts(
+        res.data.map((product) => ({
+          id: product.productId,
+          name: product.productName,
+          quantity: 333,
+        }))
+      );
+    };
     getProducts();
   }, []);
 

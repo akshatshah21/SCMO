@@ -5,22 +5,27 @@ import M from "materialize-css";
 export default function SendShipment({ history }) {
   const [recipients, setRecipients] = useState([]);
   const [products, setProducts] = useState([]);
+  // TODO: Change formData to two state objects: recipient and products [{productId, quantity}]
   const [formData, setFormData] = useState({});
   const [code, setCode] = useState("");
 
   useEffect(() => {
     const selectEffect = async () => {
       // get list of recipients, products and then set state
-      /*
-        GET /stage
-        GET /product
-      */
-
-      // Dummy data for now
-      let { data: recipientList } = await axios("https://jsonplaceholder.typicode.com/users");
-      let { data: productList } = await axios("https://jsonplaceholder.typicode.com/todos");
-      setRecipients(() => recipientList.map(recipient => ({name: recipient.name, id: recipient.id}) ));
-      setProducts(() => productList.map(product => ({name: product.title, id: product.id }) ));
+      let { data: recipients } = await axios("api/stage");
+      let { data: products } = await axios("api/product");
+      setRecipients(() =>
+        recipients.map((recipient) => ({
+          name: recipient.stageName,
+          id: recipient.stageId,
+        }))
+      );
+      setProducts(() =>
+        products.map((product) => ({
+          name: product.productName,
+          id: product.productId,
+        }))
+      );
       
       var selects = document.querySelectorAll('select');
       M.FormSelect.init(selects);
@@ -47,7 +52,8 @@ export default function SendShipment({ history }) {
     console.log(formData);
     
     // TODO: formData to be sent to backend api
-    axios.post("/api/transfer", formData)
+    // attach senderId
+    axios.post("/api/transfer/initiate", formData)
       .then(res => {
         console.log(res.data);
         setCode(res.data);
