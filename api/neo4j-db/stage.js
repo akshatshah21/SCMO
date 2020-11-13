@@ -1,4 +1,5 @@
 const driver = require("./db");
+const product = require("./product");
 
 module.exports = {
     /**
@@ -9,7 +10,7 @@ module.exports = {
         console.log(`Add stage ${stage.stageName}`);
         try{
             let session = driver.session();
-            await session.run("CREATE (s:Stage {stageName: $stageName,stageId: $stageId,staffCnt: $staffCnt,latitude : $latitude,longitude : $longitude,electricity : $electricity});"
+            await session.run("CREATE (s:Stage {stageName: $stageName,stageId: $stageId,staffCnt: $staffCnt,latitude : $latitude,longitude : $longitude});"
                 ,
                 {
                     stageName : stage.stageName,
@@ -17,12 +18,37 @@ module.exports = {
                     staffCnt : stage.staffCnt,
                     latitude : stage.latitude,
                     longitude : stage.longitude,
-                    electricity : stage.electricity,
+                    //electricity : stage.electricity,
                 }
             );
             await session.close();
         }catch(err){
             console.log(`[ERR] addStage(): ${err}`);
+        }
+    },
+
+    /**
+     * Create a relation between stage and product.
+     * @param {Number} stageId - the stage id
+     * @param {Number} productId - the product id
+     * @param {Number} quantity - quantity of Products there in the stage.
+     */
+    addProductToStage: async(stageId,productId,quantity) =>{
+        try{
+            let session = driver.session();
+            await session.run(
+                "MATCH (p:Product{ productId : $productId }) "+
+                "MATCH (s:Stage{ stageId : $stageId }) "+
+                "CREATE (p)<-[hs:HAS_STOCK{ quantity : $quantity }]-(s);"
+                ,{
+                    productId : productId,
+                    stageId : stageId,
+                    quantity : quantity
+                }
+            );
+            await session.close();
+        }catch(err){
+            console.log(`[ERR] addProductToStage(): ${err}`);
         }
     },
 
