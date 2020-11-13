@@ -9,7 +9,7 @@ export default function Authenticate() {
   return (
     <>
       <div className="row" style={{ marginTop: "1.5rem" }}>
-        <nav className="nav-extended col s6 offset-s3 row">
+        <nav className="nav-extended col s6 offset-s3 row indigo darken-4">
           <div className="nav-content">
             <div className="row tabs tabs-transparent">
               <Link

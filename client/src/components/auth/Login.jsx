@@ -15,8 +15,6 @@ function Login({ loginUser, errors, auth, history }) {
     password: "",
   });
 
-  // const [errors, setErrors] = useState({});
-
   const handleChange = (e) => {
     setInput((prevInput) => ({
       ...prevInput,
@@ -34,7 +32,7 @@ function Login({ loginUser, errors, auth, history }) {
   };
   return (
     <div className="col s6 offset-s3">
-      <h2>Login</h2>
+      <h2 className="center-align">Login</h2>
       <form noValidate>
         <div className="row">
           <div className="input-field col s12">
