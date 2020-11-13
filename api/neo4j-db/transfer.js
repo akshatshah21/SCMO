@@ -54,9 +54,10 @@ module.exports = {
                 await sess.run(
                     "MATCH (p:Product{productId:$productId}) "+
                     "MATCH (t:Transfer{transferId:$transferId}) "+
-                    "CREATE (p)<-[:IS_PART_OF]-(t);"
+                    "CREATE (p)<-[ipo:IS_PART_OF{quantity:$quantity}]-(t);"
                     ,{
                         productId : product.productId,
+                        quantity : product.quantity,
                         transferId : transferDetails.transferId
                     }
                 );
