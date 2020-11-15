@@ -159,4 +159,54 @@ module.exports = {
             console.log(`[ERR] removeStageById: ${err}`);
         }
     },
+
+    /**
+     * Updates the quantity of a product in a stage.
+     * @param {Number} stageId - The id of the stage
+     * @param {Number} productId - The id of the product
+     * @param {Number} deltaQuantity - the change in quantity of the product.
+     */
+    updateQuantity: async(stageId,productId,deltaQuantity) => {
+        try{
+            let session =driver.session();
+            let hs = await session.run(
+                "MATCH (s:Stage{ stageId : $stageId}) "+
+                "MATCH (p:Product{ productId : $productId }) "+
+                "MATCH (p)<-[hs:HAS_STOCK]-(s) RETURN hs;"
+                ,{
+                    stageId : stageId,
+                    productId : productId,
+                }
+            );
+            if(hs.records.length==0){
+                //addProductToStage
+                console.log(`adding Product to stage ${deltaQuantity}`);
+                await session.run(
+                    "MATCH (p:Product{ productId : $productId }) "+
+                    "MATCH (s:Stage{ stageId : $stageId }) "+
+                    "CREATE (p)<-[:HAS_STOCK{ quantity : $deltaQuantity }]-(s) ;"
+                    ,{
+                        productId : productId,
+                        stageId : stageId,
+                        deltaQuantity : deltaQuantity
+                    }
+                );
+            }else{
+                await session.run(
+                    "MATCH (s:Stage{ stageId : $stageId}) "+
+                    "MATCH (p:Product{ productId : $productId }) "+
+                    "MATCH (p)<-[hs:HAS_STOCK]-(s) " +
+                    "SET hs.quantity= hs.quantity + $deltaQuantity;"
+                    ,{
+                        stageId : stageId,
+                        productId : productId,
+                        deltaQuantity : deltaQuantity
+                    }
+                );
+            }
+            await session.close();
+        }catch(err){
+            console.log(`[ERR] updateQuantity(): ${err}`);
+        }
+    }
 };

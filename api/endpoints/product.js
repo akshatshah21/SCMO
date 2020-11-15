@@ -19,6 +19,6 @@ router.post("/create", urlencodedParser, async(req,res) => {
         mrp : Number(req.body.mrp)
     };
     await product.addProduct(data);
-    res.status(200).json();
+    res.status(200).json(data);
 });
 module.exports = router;
