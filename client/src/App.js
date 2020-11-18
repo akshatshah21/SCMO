@@ -60,13 +60,10 @@ function App({ auth, logoutUser }) {
           <div className="container">
             {/* <Route path="/" component={Home}  /> */}
             <Route path="/auth" component={Authenticate} />
-            <Switch>
-              <PrivateRoute
-                exact
-                path="/storage-center"
-                component={StorageCenter}
-              />
-            </Switch>
+            <PrivateRoute
+              path="/storage-center"
+              component={StorageCenter}
+            />
           </div>
         </div>
       </BrowserRouter>

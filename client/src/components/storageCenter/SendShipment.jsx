@@ -12,12 +12,12 @@ export default function SendShipment({ history }) {
   useEffect(() => {
     const selectEffect = async () => {
       // get list of recipients, products and then set state
-      let { data: recipients } = await axios("api/stage");
+      let { data: recipients } = await axios("/api/stage");
       let { data: products } = await axios("api/product");
       setRecipients(() =>
         recipients.map((recipient) => ({
           name: recipient.stageName,
-          id: recipient.stageId,
+          stageId: recipient.stageId,
         }))
       );
       setProducts(() =>
@@ -26,8 +26,8 @@ export default function SendShipment({ history }) {
           id: product.productId,
         }))
       );
-      
-      var selects = document.querySelectorAll('select');
+
+      var selects = document.querySelectorAll("select");
       M.FormSelect.init(selects);
     }
     selectEffect();
