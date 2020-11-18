@@ -17,15 +17,17 @@ router.post("/register", async (req, res) => {
     return res.status(400).json({username: "Username taken"});
   }
 
-  // TODO: Check if the stage that this user is claiming to be in-charge of has any other user already assigned. If yes, add an error
-
-  await addUser({ 
+  let result = await addUser({
     username: req.body.username,
     password: req.body.password,
-    type: req.body.type, 
-    stage_id: req.body.stageId 
+    type: req.body.type,
+    stageId: req.body.stageId,
   });
-  res.status(200).end("Done!");
+  if (result === "OK") {
+    res.status(200).send("OK");
+  } else {
+    res.status(400).json(result);
+  }
 });
 
 router.post("/login", async (req, res) => {
@@ -46,8 +48,8 @@ router.post("/login", async (req, res) => {
       username: user.username,
       // maybe add stage info
       type: user.type,
-      stageId: user.stage_id
-    }
+      stageId: user.stageId,
+    };
     // Sign token
     jwt.sign(payload, SECRET_OR_KEY, { expiresIn: 31556926 }, (err, token) => {
       res.json({

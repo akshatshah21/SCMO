@@ -6,7 +6,9 @@ import classnames from "classnames";
 import { loginUser } from "../../redux/actions/authActions";
 
 function Login({ loginUser, errors, auth, history }) {
+  // NOT WORKING!
   if (auth.isAuthenticated) {
+    console.log("Already logged in");
     history.push("/");
   }
 
