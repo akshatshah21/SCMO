@@ -71,6 +71,39 @@ module.exports = {
     },
 
     /**
+     * getting all the products in a specific transfer.
+     * @param {String} transferId  - The source code to be checked.
+     * @return {Array} - array of objects with productid and quantity.
+     */
+    getAllProducts: async(transferId) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(
+                "MATCH (t:Transfer{ transferId : $transferId }) "+
+                "MATCH (p:Product)<-[ipo:IS_PART_OF]-(t) "+
+                "RETURN p,ipo;"
+                ,{
+                    transferId : transferId
+                }
+            );
+            console.log(result.records);
+            let prods = [];
+            if(result.records.length>0){
+                result.records.forEach((prod) => {
+                    let temp = prod.get('p').properties;
+                    temp.quantity = Number(prod.get('ipo').properties.quantity);
+                    prods.push(temp);
+                    console.log(temp);
+                });
+            }
+            await session.close();
+            return prods;
+        }catch(err){
+            console.log(`[ERR] getAllProducts(): ${err}`);
+        }
+    },
+
+    /**
      * check whether the source code sent is associated with a particular transfer
      * @param {Number} code - The source code to be checked.
      * @return {Object} - The Transfer Node object
