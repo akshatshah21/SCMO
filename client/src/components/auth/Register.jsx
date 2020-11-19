@@ -14,42 +14,36 @@ function Register({ registerUser, errors, auth, history }) {
     password: "",
     password2: "",
     type: "",
+    stageId: ""
   });
   const [stages, setStages] = useState([]);
 
-  // const [errors, setErrors] = useState({});
-
   const handleChange = (e) => {
+    console.log(e.target.name);
+    console.log(e.target.value);
     setInput((prevInput) => ({
       ...prevInput,
       [e.target.name]: e.target.value,
     }));
+    console.log(input);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newUser = {
-      username: input.username,
-      password: input.password,
-      password2: input.password2,
-      type: "",
-      stageId: ""
-    };
-
-    console.log(newUser);
-    registerUser(newUser, history);
+    registerUser(input, history);
   };
 
   useEffect(() => {
-    const initStages = async() => {
-      // let res = await axios.get("/api/stage");
-      let res = await axios.get("https://jsonplaceholder.typicode.com/users");
-      setStages(() => res.data.map(stage => ({name: stage.name, id: stage.id}) ));
-    }
+    const initStages = async () => {
+      let res = await axios.get("/api/stage");
+      setStages(() =>
+        res.data.map((stage) => ({ name: stage.stageName, id: stage.stageId }))
+      );
+    };
     initStages();
-    var selects = document.querySelectorAll('select');
-    M.FormSelect.init(selects)
-  }, [input.type])
+    var selects = document.querySelectorAll("select");
+    M.FormSelect.init(selects);
+  }, [input.type]);
 
   return (
     <div className="col s6 offset-s3">
@@ -57,8 +51,16 @@ function Register({ registerUser, errors, auth, history }) {
       <form noValidate autoComplete="off">
         <div className="row">
           <div className="input-field col s12">
-            <select name="type" onChange={handleChange}>
-              <option value="" disabled selected>
+            <select 
+              name="type" 
+              onChange={handleChange}
+              error={errors && errors.type}
+              className={classnames({
+                invalid: errors.type,
+              })}
+              defaultValue=""
+              >
+              <option value="" disabled>
                 Choose account type
               </option>
               <option value="stage">Storage Center</option>
@@ -68,13 +70,22 @@ function Register({ registerUser, errors, auth, history }) {
               </option>
             </select>
             <label>Type of account</label>
+            <span className="red-text">{errors.type}</span>
           </div>
         </div>
         {input.type === "stage" && (
           <div className="row">
-            <div className="input-field">
-              <select onChange={handleChange} defaultValue="" name="stageId">
-                <option value="" disabled selected>
+            <div className="input-field col s12">
+              <select
+                name="stageId"
+                error={errors && errors.stageId}
+                onChange={handleChange}
+                className={classnames({
+                  invalid: errors.stageId,
+                })}
+                defaultValue=""
+              >
+                <option value="" disabled>
                   Choose storage center
                 </option>
                 {stages.map((stage) => (
@@ -84,6 +95,7 @@ function Register({ registerUser, errors, auth, history }) {
                 ))}
               </select>
               <label>Storage Center</label>
+            <span className="red-text">{errors.stageId}</span>
             </div>
           </div>
         )}
@@ -136,12 +148,12 @@ function Register({ registerUser, errors, auth, history }) {
           </div>
         </div>
         <div className="row">
-          <a
+          <button
             className="waves-effect waves-light btn btn-small blue col s8 offset-s2"
             onClick={handleSubmit}
           >
             Register
-          </a>
+          </button>
         </div>
       </form>
     </div>

@@ -6,7 +6,7 @@ import classnames from "classnames";
 import { loginUser } from "../../redux/actions/authActions";
 
 function Login({ loginUser, errors, auth, history }) {
-  // NOT WORKING!
+  // Works only on login form submit, not when a logged in user comes to this component
   if (auth.isAuthenticated) {
     console.log("Already logged in");
     history.push("/");
@@ -69,12 +69,12 @@ function Login({ loginUser, errors, auth, history }) {
           </div>
         </div>
         <div className="row">
-          <a
+          <button
             className="waves-effect waves-light btn btn-small blue col s8 offset-s2"
             onClick={handleSubmit}
           >
             Login
-          </a>
+          </button>
         </div>
       </form>
     </div>

@@ -73,7 +73,7 @@ module.exports = {
     /**
      * getting all the products in a specific transfer.
      * @param {String} transferId  - The source code to be checked.
-     * @return {Array} - array of objects with productid and quantity.
+     * @return {Array} array of objects with productid and quantity.
      */
     getAllProducts: async(transferId) => {
         try{
@@ -106,7 +106,7 @@ module.exports = {
     /**
      * check whether the source code sent is associated with a particular transfer
      * @param {Number} code - The source code to be checked.
-     * @return {Object} - The Transfer Node object
+     * @return {Object} The Transfer Node object
      */
     getTransferBySourceCode: async(code) => {
         try{
@@ -134,7 +134,7 @@ module.exports = {
     /**
      * check whether the destination code sent is associated with a particular transfer
      * @param {Number} code - The destination code to be checked.
-     * @return {Object} - The Transfer Node object
+     * @return {Object} The Transfer Node object
      */
     getTransferByDestinationCode: async(code) => {
         try{
@@ -162,7 +162,7 @@ module.exports = {
     /**
      * Get a transfer by its id
      * @param {Number} id - The id of the transfer
-     * @return {Object} - The Transfer Node object
+     * @return {Object} The Transfer Node object
      */
     getTransferById: async(id) => {
         try{
@@ -190,7 +190,7 @@ module.exports = {
     /**
      * Get all the transfers of a Source
      * @param {Number} stage - The id of the Source
-     * @return {Array} - An array of Transfer Node objects
+     * @return {Array} An array of Transfer Node objects
      */
     getTransfersOfSource: async(stage) => {
         try{
@@ -220,7 +220,7 @@ module.exports = {
     /**
      * Get all the transfers of a Destination
      * @param {Number} stage - The id of the Destination
-     * @return {Array} - An array of Transfer Node objects
+     * @return {Array} An array of Transfer Node objects
      */
     getTransfersOfDestination: async(stage) => {
         try{
@@ -250,7 +250,7 @@ module.exports = {
     /**
      * give a list of all transfers having a particular transfer status.
      * @param {String} code - The destination code to be checked.
-     * @return {Array} - an Array of transfer node objects.
+     * @return {Array} an Array of transfer node objects.
      */
     getTransfersByStatus: async(status) => {
         try{
@@ -281,7 +281,7 @@ module.exports = {
     /**
      * change the transfer status of a particular transfer node object.
      * @param {Number} id - The transfer id to be changed.
-     * @param {String} status - the status value to be changed to.
+     * @param {String} status the status value to be changed to.
      */
     changeTransferStatus : async(id,status) => {
         try{

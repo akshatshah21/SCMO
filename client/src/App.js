@@ -13,8 +13,9 @@ import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./redux/actions/authActions";
 import PrivateRoute from "./components/auth/PrivateRoute";
 
-if (localStorage.jwtToken) {
-  const token = localStorage.jwtToken;
+if (localStorage.jwt) {
+  const token = localStorage.jwt;
+  console.log(token);
   setAuthToken(token);
   const decoded = jwt_decode(token);
   store.dispatch(setCurrentUser(decoded));

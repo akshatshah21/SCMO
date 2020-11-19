@@ -3,7 +3,7 @@ const driver = require("./db");
 module.exports = {
     /**
      * Add a product
-     * @param {Object} - Product details
+     * @param {Object} product - Product details
      */
     addProduct: async (product) => {
         try{
@@ -23,7 +23,7 @@ module.exports = {
 
     /**
      * Get all Products
-     * @return {Array} - an array of Product Node objects
+     * @return {Array} an array of Product Node objects
      */
     getAllProducts: async() => {
         try{
@@ -49,7 +49,7 @@ module.exports = {
     /**
      * Get a product by its id
      * @param {Number} id - The id of the product
-     * @return {Object} - The Product Node Object
+     * @return {Object} The Product Node Object
      */
     getProductById: async (id) => {
         try{
@@ -74,7 +74,7 @@ module.exports = {
     /**
      * Get a product by its name
      * @param {String} name - The name of the product
-     * @return {Object} - The Product Node Object
+     * @return {Object} The Product Node Object
      */
     getProductByName: async (name) => {
         try{

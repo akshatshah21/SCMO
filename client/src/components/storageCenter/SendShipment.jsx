@@ -12,12 +12,12 @@ export default function SendShipment({ history }) {
   useEffect(() => {
     const selectEffect = async () => {
       // get list of recipients, products and then set state
-      let { data: recipients } = await axios("/api/stage");
-      let { data: products } = await axios("api/product");
+      let { data: stages } = await axios("/api/stage");
+      let { data: products } = await axios("/api/product");
       setRecipients(() =>
-        recipients.map((recipient) => ({
-          name: recipient.stageName,
-          stageId: recipient.stageId,
+        stages.map((stage) => ({
+          name: stage.stageName,
+          id: Number(stage.stage_id),
         }))
       );
       setProducts(() =>
@@ -48,8 +48,7 @@ export default function SendShipment({ history }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    formData.timestamp = (new Date()).toISOString();
-    console.log(formData);
+    formData.timestamp = new Date().toISOString();
     
     // TODO: formData to be sent to backend api
     // attach senderId

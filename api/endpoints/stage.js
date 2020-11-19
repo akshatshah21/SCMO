@@ -1,29 +1,42 @@
 const router = require("express").Router();
 const bodyParser = require("body-parser");
 const uuid = require("uuid");
-const { addProduct } = require("../neo4j-db/product");
 
 const stage = require('../neo4j-db/stage');
 
 const urlencodedParser = bodyParser.urlencoded({extended:false});
 
+/**
+ * @route GET api/stage/
+ * @desc Returns list of all stages. Currently only stageIds and stageNames
+ * @access Public
+ */
 router.get("/",async (req,res) => {
     let data = await stage.getAllStages();
     res.status(200).json(data);
 });
 
+/**
+ * @route POST api/stage/create
+ * @desc Creates a stage. Currently only handles stageName
+ * @access Public, change to admin only later
+ */
 router.post("/create",urlencodedParser, async(req,res) => {
     let data;
     data = {
-        stageName : req.body.stageName,
-        stageId : uuid.v1(),
-        staffCnt : Number(req.body.staffCnt),
-        latitude : Number(req.body.latitude),
-        longitude : Number(req.body.longitude),
-        //electricity : stage.electricity,
+      stageName: req.body.stageName,
+      stageId: uuid.v1(),
+      // staffCount : Number(req.body.staffCount),
+      // latitude : Number(req.body.latitude),
+      // longitude : Number(req.body.longitude),
+      // electricity : stage.electricity,
+    };
+    let err = await stage.addStage(data);
+    if(err) {
+        res.status(500).send(err);
+    } else {
+        res.status(200).json();
     }
-    await stage.addStage(data);
-    res.status(200).json();
 });
 
 router.post("/addProduct",urlencodedParser, async(req,res) => {

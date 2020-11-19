@@ -32,7 +32,7 @@ module.exports = {
     /**
      * Get all connections of a stage
      * @param {Number} stageId - The id of the stage
-     * @return {Array} - Array of Connection Node objects
+     * @return {Array} Array of Connection Node objects
      */
     getConnectionsOfStage: async (stageId) => {
         try{
@@ -62,7 +62,7 @@ module.exports = {
      * Get the Connection between two stages
      * @param {Number} stage1Id - id of the first stage
      * @param {Number} stage2Id - id of the second stage
-     * @return {Object} - The Connection Node object
+     * @return {Object} The Connection Node object
      */
     getConnectionBetweenStages: async (stage1Id, stage2Id) => {
         try{

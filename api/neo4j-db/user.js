@@ -8,7 +8,7 @@ module.exports = {
    * @param {Object} user - The details of the user: username, password
    */
   addUser: async (user) => {
-    console.log(`Add user: ${user.username} ${user.password}`);
+    // console.log(`Add user ${user.username}`);
     try {
       let salt = await bcrypt.genSalt(10);
       let hash = await bcrypt.hash(user.password, salt);
@@ -16,19 +16,19 @@ module.exports = {
       let session = driver.session();
       if(user.type === "stage") {
         let result = await session.run(
-          "MATCH (s: Stage { stage_id: $stageId }) " +
-          "WHERE NOT (s)<-[:IS_USER_OF]-(:User) " +
-          "WITH s " + 
-          "MERGE (s)<-[:IS_USER_OF]-(u: User { " +
-            "username: $username," + 
-            "password: $password" + 
-          "}) " + 
-          "RETURN u;",
+          "MATCH (s: Stage { stageId: $stageId }) " +
+            "WHERE NOT (s)<-[:IS_USER_OF]-(:User) " +
+            "WITH s " +
+            "MERGE (s)<-[:IS_USER_OF]-(u: User { " +
+            "username: $username," +
+            "password: $password" +
+            "}) " +
+            "RETURN u;",
           {
             username: user.username,
             password: hash,
             type: user.type,
-            stageId: user.stageId
+            stageId: user.stageId,
           }
         );
         if(result.records.length == 0) {
@@ -43,17 +43,17 @@ module.exports = {
       return "OK";
     } catch (err) {
       console.log(`[ERR] addUser(): ${err}`);
-      return {err};
+      return { stageId: "Invalid input" }; // always stage id error for now
     }
   },
 
   /**
    * Get a user by its username along with the ID of the user's stage
    * @param {String} username - username of the user
-   * @return {Object} - The User Node's properties
+   * @return {Object} The User Node's properties
    */
   getUserByUsername: async (username) => {
-    console.log(`Get user: ${username}`);
+    // console.log(`Get user: ${username}`);
     try {
       let session = driver.session();
       let result = await session.run(
@@ -66,7 +66,7 @@ module.exports = {
       let user;
       if (result.records[0]) {
         user = result.records[0].get("u").properties;
-        user.stageId = result.records[0].get("s").properties.stage_id;
+        user.stageId = result.records[0].get("s").properties.stageId;
       }
       await session.close();
       return user;
@@ -80,7 +80,7 @@ module.exports = {
    * @param {String} username - The username of the user to be removed
    */
   removeUser: async (username) => {
-    console.log(`Remove user: ${username}`);
+    // console.log(`Remove user: ${username}`);
     try {
       let session = driver.session();
       let result = await session.run(

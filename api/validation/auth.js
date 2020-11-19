@@ -2,16 +2,24 @@ const Validator = require("validator");
 const isEmpty = require("is-empty");
 
 module.exports = {
+    /**
+     * Validates registration form data
+     * @param {Object} data - Registration fields
+     * @return {Object} An object with boolean isValid, and errors if any
+     */
     validateRegistration: (data) => {
         let errors = {};
 
         data.username = !isEmpty(data.username) ? data.username : "";
         data.password = !isEmpty(data.password) ? data.password : "";
         data.password2 = !isEmpty(data.password2) ? data.password2 : "";
+        data.type = !isEmpty(data.type) ? data.type : "";
+        data.stageId = !isEmpty(data.stageId) ? data.stageId : "";
+
 
         // username check
         if (Validator.isEmpty(data.username)) {
-            errors.name = "Username field is required";
+            errors.username = "Username field is required";
         }
 
         // Password checks
@@ -29,12 +37,32 @@ module.exports = {
             errors.password2 = "Passwords must match";
         }
 
+        // Type check
+        if(Validator.isEmpty(data.type)) {
+            errors.type = "Type field is required";
+        } else {
+            if(data.type === "stage") {
+                if(Validator.isEmpty(data.stageId)) {
+                    errors.stageId = "Stage ID is required";
+                }
+            } else if(data.type === "admin") {
+                errors.type = "Feature not implemented yet";
+            } else {
+                errors.type = "Invalid type";
+            }
+        }
+
         return {
             errors,
             isValid: isEmpty(errors),
         };
     },
 
+    /**
+     * Validates login form data
+     * @param {Object} data - Login fields
+     * @returns {Object} An object with boolean isValid, and errors if any
+     */
     validateLogin: (data) => {
         let errors = {};
         data.username = !isEmpty(data.username) ? data.username : "";
