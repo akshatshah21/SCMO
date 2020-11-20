@@ -32,9 +32,17 @@ module.exports = {
       await session.close();
     } catch (err) {
       console.log(`[ERR] addStage(): ${err}`);
+      if(err.name === "Neo4jError") {
+        if(err.code === "Neo.ClientError.Schema.ConstraintValidationFailed") {
+            return {
+                error: `Stage with name '${stage.stageName}' already exists`
+            }
+          }
+        }
       return err;
     }
   },
+
 
   /**
    * Create a relation between stage and product.
@@ -45,17 +53,27 @@ module.exports = {
   addProductToStage: async (stageId, productId, quantity) => {
     try {
       let session = driver.session();
-      await session.run(
+      // add checks for whether product or stage exist. Right now records.len == 0 if no matches
+      let result = await session.run(
         "MATCH (p:Product{ productId : $productId }) " +
         "MATCH (s:Stage{ stageId : $stageId }) " +
-        "CREATE (p)<-[hs:HAS_STOCK{ quantity : $quantity }]-(s);",
+        "MERGE (p)<-[hs:HAS_STOCK{ quantity : $quantity }]-(s) " +
+        "RETURN hs;",
         {
           productId: productId,
           stageId: stageId,
           quantity: quantity,
         }
       );
+      
       await session.close();
+      if(result.records.length === 0) {
+        return {
+          error: "Invalid input. Check if product and/or stage exists"
+        };
+      } else {
+        return "OK";
+      }
     } catch (err) {
       console.log(`[ERR] addProductToStage(): ${err}`);
     }
@@ -221,4 +239,33 @@ module.exports = {
       console.log(`[ERR] updateQuantity(): ${err}`);
     }
   },
+
+  /**
+   * Get all products that are in stock in a stage
+   * 
+   * @param {String} stageId - The id of the stage
+   * @return {Object} having a products list. If an error, then err
+   */
+  getProducts: async (stageId) => {
+    try {
+      let session = driver.session();
+      let result = await session.run(
+        "MATCH (s: Stage { stageId: $stageId })-[hs:HAS_STOCK]-(p: Product) " +
+        "RETURN p, hs.quantity AS quantity;",
+        { stageId }
+      );
+      await session.close();
+      if(result.records.length === 0) {
+        throw Error("Invalid input, check stageId");
+      }
+      let products = result.records.map(record => ({
+        ...record.get("p").properties,
+        quantity: record.get("quantity")
+      }));
+      return {products};
+    } catch (err) {
+      console.log(`[ERR] getProducts(): ${err}`);
+      return {err};
+    }
+  }
 };

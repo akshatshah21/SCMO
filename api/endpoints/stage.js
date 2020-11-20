@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 
 const stage = require('../neo4j-db/stage');
+const { validateCreation, validateProductAddition } = require("../validation/stage");
 
 const urlencodedParser = bodyParser.urlencoded({extended:false});
 
@@ -21,9 +22,12 @@ router.get("/",async (req,res) => {
  * @desc Creates a stage. Currently only handles stageName
  * @access Public, change to admin only later
  */
-router.post("/create",urlencodedParser, async(req,res) => {
-    let data;
-    data = {
+router.post("/create", async(req,res) => {
+    const { isValid, errors } = validateCreation(req.body);
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
+    let data = {
       stageName: req.body.stageName,
       stageId: uuid.v1(),
       // staffCount : Number(req.body.staffCount),
@@ -33,20 +37,43 @@ router.post("/create",urlencodedParser, async(req,res) => {
     };
     let err = await stage.addStage(data);
     if(err) {
-        res.status(500).send(err);
+        res.status(500).json(err);
     } else {
-        res.status(200).json();
+        res.status(200).end();
     }
 });
 
-router.post("/addProduct",urlencodedParser, async(req,res) => {
+router.post("/addProduct", async(req,res) => {
+    const { errors, isValid } = validateProductAddition(req.body);
+    if(!isValid) {
+        return res.status(400).json(errors);
+    }
     let productId = req.body.productId;
     let stageId = req.body.stageId;
     let quantity = Number(req.body.quantity);
-    await stage.addProductToStage(stageId, productId, quantity);
-    res.status(200).json();
-    console.log(`:HAS_STOCK created between ${stageId} and ${productId} of ${quantity}`);
+    let result = await stage.addProductToStage(stageId, productId, quantity);
+    if(result === "OK") {
+        console.log(`:HAS_STOCK created between ${stageId} and ${productId} of ${quantity}`);
+        res.status(200).send("OK");
+    } else {
+        res.status(400).send(result);
+    }
 });
+
+/**
+ * @route GET api/stage/:stageId/products
+ * @desc return all products of a stage
+ * @access Public for now, change to protected later
+ */
+router.get("/:stageId/products", async (req, res) => {
+    let stageId = req.params.stageId;
+    let result = await stage.getProducts(stageId);
+    if(result.err) {
+        res.status(500).json( {error: result.err.message} );
+    } else {
+        res.status(200).json(result.products);
+    }
+})
 
 router.put("/updateQuantity",urlencodedParser, async(req,res) => {
     let productId = req.body.productId;

@@ -15,7 +15,6 @@ import PrivateRoute from "./components/auth/PrivateRoute";
 
 if (localStorage.jwt) {
   const token = localStorage.jwt;
-  console.log(token);
   setAuthToken(token);
   const decoded = jwt_decode(token);
   store.dispatch(setCurrentUser(decoded));

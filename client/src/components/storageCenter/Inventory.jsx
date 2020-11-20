@@ -1,23 +1,24 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
+import {connect} from "react-redux";
 
-export default function Inventory() {
+function Inventory({stageId}) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const getProducts = async () => {
       // Get all products for this stage
-      let res = await axios.get("/api/product"); // something like this, also specify stage id
+      let res = await axios.get(`/api/stage/${stageId}/products`); // something like this, also specify stage id
       setProducts(
         res.data.map((product) => ({
           id: product.productId,
           name: product.productName,
-          quantity: 333,
+          quantity: product.quantity,
         }))
       );
     };
     getProducts();
-  }, []);
+  }, [stageId]);
 
   return (
     <div>
@@ -33,3 +34,9 @@ export default function Inventory() {
     </div>
   )
 }
+
+const mapStateToProps = state => ({
+  stageId: state.auth.user.stageId
+});
+
+export default connect(mapStateToProps, null) (Inventory);
