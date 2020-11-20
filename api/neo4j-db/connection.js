@@ -13,19 +13,24 @@ module.exports = {
             let session = driver.session();
             // await session.run("CREATE (c:Connection{ avg_cost: $avg_cost, avg_time: $avg_time, transfer_cost: $transfer_cost, distance: $distance,});");
 
-            await session.run(
-                    "MATCH (s1:Stage{stageId:$stage1Id})"+
-                    "MATCH (s2:Stage{stageId:$stage2Id})"+
-                    "CREATE (s1)-[:PART_OF]->(c:Connection{connectionId:$connectionId})<-[:PART_OF]-(s2)"
-                ,{
+            let result = await session.run(
+                    "MATCH (s1:Stage{stageId:$stage1Id}) " +
+                    "MATCH (s2:Stage{stageId:$stage2Id}) " +
+                    "CREATE (s1)-[:PART_OF]->(c:Connection{connectionId:$connectionId})<-[:PART_OF]-(s2) " +
+                    "RETURN c;",
+                {
                     stage1Id : stage1Id,
                     stage2Id : stage2Id,
                     connectionId : connectionId
             });
 
             await session.close();
+            return {
+                connection: result.records[0].get("c").properties
+            };
         }catch(err){
             console.log(`[ERR] addConnection: ${err}`);
+            return {err};
         }
     },
 

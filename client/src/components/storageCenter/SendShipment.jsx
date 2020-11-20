@@ -4,31 +4,25 @@ import M from "materialize-css";
 import { connect } from "react-redux";
 
 function SendShipment({ history, stageId }) {
-  const [recipients, setRecipients] = useState([]);
-  const [products, setProducts] = useState([]);
-  // TODO: Change formData to two state objects: recipient and products [{productId, quantity}]
-  const [formData, setFormData] = useState({});
-  const [code, setCode] = useState("");
+  const [stageList, setStageList] = useState([]);
+  const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState(new Map());
   const [productQuantities, setProductQuantities] = useState({});
-  /* 
-    productQuantities = {
-      productId: quantity
-    }
-  */
+  const [recipientId, setRecipientId] = useState("");
+  const [code, setCode] = useState("");
 
   useEffect(() => {
     const selectEffect = async () => {
-      // get list of recipients, products and then set state
+      // get list of stages, products and then set state
       let { data: stages } = await axios("/api/stage");
       let { data: products } = await axios(`/api/stage/${stageId}/products`);
-      setRecipients(() =>
+      setStageList(() =>
         stages.map((stage) => ({
           name: stage.stageName,
           id: stage.stageId,
         }))
       );
-      setProducts(products);
+      setProductList(products);
       setProductQuantities(() => {
         let productQuantities = {};
         products.forEach((product) => {
@@ -51,7 +45,7 @@ function SendShipment({ history, stageId }) {
     var elems = document.querySelectorAll(".modal");
     var [instance] = M.Modal.init(elems, {
       onCloseEnd: () => {
-        // display done and redirect to storage center?
+        // display done and redirect to storage center
         M.toast({ html: "Shipment created" });
         history.push("/storage-center");
       },
@@ -61,20 +55,43 @@ function SendShipment({ history, stageId }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    let products = [];
+    let isValid = true;
+    Object.keys(productQuantities).forEach(key => {
+      if(productQuantities[key] !== "") {
+        if(productQuantities[key] < 1) {
+          M.toast({html: `Minimum quantity is 1`});
+          isValid = false;
+          return;
+        } else if(productQuantities[key] > productList.find(product => product.productId === key).quantity) {
+          M.toast({html: `Quantity specified exceeds current inventory`});
+          isValid = false;
+          return;
+        } else {
+          products.push({
+            productId: key,
+            quantity: productQuantities[key] 
+          });
+        }
+      }
+    })
+    if(!isValid) return;
+    if(products.length === 0) {
+      M.toast({html: "Please select at least one product"});
+    }
+    if(recipientId === "") {
+      M.toast({html: "Please select a recipient"});
+    }
+    let formData = {
+      recipientId: recipientId,
+      senderId: stageId,
+      products
+    };
     formData.timestamp = new Date().toISOString();
-
-    // TODO: formData to be sent to backend api
-    // attach senderId
+    console.log(formData);
     axios.post("/api/transfer/initiate", formData).then((res) => {
       setCode(res.data);
     });
-  };
-
-  const handleChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
   };
 
   const handleSelectedProductsChange = (e) => {
@@ -99,13 +116,17 @@ function SendShipment({ history, stageId }) {
       <form className="offset-s2 col s8">
         <div className="row">
           <div className="input-field">
-            <select onChange={handleChange} defaultValue="" name="recipientId">
+            <select
+              onChange={(e) => setRecipientId(e.target.value)}
+              defaultValue=""
+              name="recipientId"
+            >
               <option value="" disabled>
                 Choose recipient
               </option>
-              {recipients.map((recipient) => (
-                <option key={recipient.id} value={recipient.id}>
-                  {recipient.name}
+              {stageList.map((stage) => (
+                <option key={stage.id} value={stage.id}>
+                  {stage.name}
                 </option>
               ))}
             </select>
@@ -113,7 +134,7 @@ function SendShipment({ history, stageId }) {
           </div>
         </div>
 
-        {products.map((product) => (
+        {productList.map((product) => (
           <div key={product.productId} className="row">
             <div className="col s12">
               <label>
@@ -129,9 +150,11 @@ function SendShipment({ history, stageId }) {
               {selectedProducts.get(product.productId) && (
                 <div className="input-field inline">
                   <input
+                    className="validate"
                     name={product.productId}
                     id="quantity"
                     type="number"
+                    min="1" max={product.quantity}
                     value={productQuantities[product.productId]}
                     onChange={handleProductQuantityChange}
                   />
@@ -141,8 +164,6 @@ function SendShipment({ history, stageId }) {
             </div>
           </div>
         ))}
-
-        {/* TODO: Display date and time */}
         <div className="row">
           <button
             type="submit"

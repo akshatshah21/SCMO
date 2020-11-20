@@ -10,7 +10,6 @@ const connection = require('../neo4j-db/connection');
 const driver = require("../neo4j-db/db");
 const { getTransferById } = require("../neo4j-db/transfer");
 const stage = require("../neo4j-db/stage");
-//const { SESSION_EXPIRED } = require("neo4j-driver/types/error");
 
 const nanoid = customAlphabet(CODESTRING,CODELENGTH); // Creating the nanoid object to generate the code
 let urlencodedParser = bodyParser.urlencoded({extended:false});
@@ -19,7 +18,7 @@ let urlencodedParser = bodyParser.urlencoded({extended:false});
 /*
     function to create a transfer node object and send a code.
 */
-router.post('/initiate',urlencodedParser,async(req,res) => {
+router.post('/initiate', async (req,res) => {
     console.log(req.body);
 
     //changing datatype of products from string to number
@@ -41,12 +40,16 @@ router.post('/initiate',urlencodedParser,async(req,res) => {
     
     // getting the connection id between the two stages
     let result = await connection.getConnectionBetweenStages(trans.sourceId,trans.destinationId);
-    if(result==-1){
-        // creating an connection b/w the two stages if it isn't present.
+    if(result === -1){
+        // creating a connection b/w the two stages if it isn't present.
         console.log('creating new connection');
         trans.connectionId = uuid.v1();
-        await connection.addConnection(trans.sourceId,trans.destinationId,trans.connectionId);
-        result = await connection.getConnectionBetweenStages(trans.sourceId,trans.destinationId);
+        result = await connection.addConnection(trans.sourceId,trans.destinationId,trans.connectionId);
+        if(result.err) {
+            console.error(result.err);
+            return res.status(500).json(result.err);
+        }
+        // result = await connection.getConnectionBetweenStages(trans.sourceId,trans.destinationId);
     }
     trans.connectionId = result.connectionId;
 
