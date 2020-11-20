@@ -88,9 +88,12 @@ function SendShipment({ history, stageId }) {
       products
     };
     formData.timestamp = new Date().toISOString();
-    console.log(formData);
     axios.post("/api/transfer/initiate", formData).then((res) => {
-      setCode(res.data);
+      if(res.data.sourceCode) {
+        setCode(res.data.sourceCode);
+      } else {
+        M.toast({html: "An error occured at the server. Please try again later"})
+      }
     });
   };
 

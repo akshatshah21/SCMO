@@ -19,7 +19,7 @@ let urlencodedParser = bodyParser.urlencoded({extended:false});
     function to create a transfer node object and send a code.
 */
 router.post('/initiate', async (req,res) => {
-    console.log(req.body);
+    // TODO: Add validation
 
     //changing datatype of products from string to number
     req.body.products.forEach((prod) => {
@@ -40,9 +40,8 @@ router.post('/initiate', async (req,res) => {
     
     // getting the connection id between the two stages
     let result = await connection.getConnectionBetweenStages(trans.sourceId,trans.destinationId);
-    if(result === -1){
+    if(result.connection === -1){
         // creating a connection b/w the two stages if it isn't present.
-        console.log('creating new connection');
         trans.connectionId = uuid.v1();
         result = await connection.addConnection(trans.sourceId,trans.destinationId,trans.connectionId);
         if(result.err) {
@@ -51,7 +50,7 @@ router.post('/initiate', async (req,res) => {
         }
         // result = await connection.getConnectionBetweenStages(trans.sourceId,trans.destinationId);
     }
-    trans.connectionId = result.connectionId;
+    trans.connectionId = result.connection.connectionId;
 
     //generating the source code.
     let code = {};
@@ -64,11 +63,13 @@ router.post('/initiate', async (req,res) => {
     });
 
     //creating the transfer node object
-    console.log(trans);
-    await transfer.addTransfer(trans);
-
-    // returning the code to the sender.
-    res.status(200).json(code);
+    result = await transfer.addTransfer(trans);
+    if(result.err) {
+        res.status(500).json(result.err);
+    } else {
+        // returning the code to the sender.
+        res.status(200).json(code);
+    }
 });
 
 router.post('/finish',async(req,res) => {

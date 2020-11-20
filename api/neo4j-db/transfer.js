@@ -8,7 +8,6 @@ module.exports = {
     addTransfer: async(transferDetails) => { 
         try{
             let session = driver.session();
-            
             await session.run(
                 "MATCH (c:Connection{connectionId:$connectionId}) "+
                 "CREATE (c)<-[:BELONGS_TO]-(t:Transfer{"+
@@ -61,12 +60,12 @@ module.exports = {
                         transferId : transferDetails.transferId
                     }
                 );
-                console.log(product);
                 await sess.close();
             })
-
+            return "OK";
         }catch(err){
             console.log(`[ERR] addTransfer(): ${err}`);
+            return {err};
         }
     },
 
