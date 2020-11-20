@@ -6,7 +6,7 @@ module.exports = {
      * @param {Object} product - Product details
      */
     addProduct: async (product) => {
-        try{
+        try {
             let session = driver.session();
             await session.run("CREATE (p:Product{ productName: $productName, productId: $productId, mrp : $mrp });",
                 {
@@ -16,8 +16,17 @@ module.exports = {
                 }
             );
             await session.close();
-        }catch(err){
+            return "OK";
+        } catch (err) {
             console.log(`[ERR] addProduct: ${err}`);
+            if(err.name === "Neo4jError") {
+                if(err.code === "Neo.ClientError.Schema.ConstraintValidationFailed") {
+                    return {
+                        error: `Product with name '${product.productName}' already exists`
+                    }
+                }
+            }
+            return {err};
         }
     },
 
@@ -35,7 +44,6 @@ module.exports = {
             let products = [];
             if(result.records.length>0){
                 result.records.forEach((product) => {
-                    console.log(product.get('p').properties);
                     products.push(product.get('p').properties);
                 });
             }

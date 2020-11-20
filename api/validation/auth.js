@@ -1,5 +1,6 @@
 const Validator = require("validator");
 const isEmpty = require("is-empty");
+const { emptyStringIfUndef } = require("./util");
 
 module.exports = {
     /**
@@ -10,12 +11,11 @@ module.exports = {
     validateRegistration: (data) => {
         let errors = {};
 
-        data.username = !isEmpty(data.username) ? data.username : "";
-        data.password = !isEmpty(data.password) ? data.password : "";
-        data.password2 = !isEmpty(data.password2) ? data.password2 : "";
-        data.type = !isEmpty(data.type) ? data.type : "";
-        data.stageId = !isEmpty(data.stageId) ? data.stageId : "";
-
+        data.username = emptyStringIfUndef(data.username);
+        data.password = emptyStringIfUndef(data.password);
+        data.password2 = emptyStringIfUndef(data.password2);
+        data.type = emptyStringIfUndef(data.type);
+        data.stageId = emptyStringIfUndef(data.stageId);
 
         // username check
         if (Validator.isEmpty(data.username)) {
@@ -65,8 +65,8 @@ module.exports = {
      */
     validateLogin: (data) => {
         let errors = {};
-        data.username = !isEmpty(data.username) ? data.username : "";
-        data.password = !isEmpty(data.password) ? data.password : "";
+        data.username = emptyStringIfUndef(data.username);
+        data.password = emptyStringIfUndef(data.password);
 
         // Username checks
         if (Validator.isEmpty(data.username)) {
