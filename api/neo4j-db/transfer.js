@@ -85,14 +85,12 @@ module.exports = {
                     transferId : transferId
                 }
             );
-            console.log(result.records);
             let prods = [];
             if(result.records.length>0){
                 result.records.forEach((prod) => {
                     let temp = prod.get('p').properties;
                     temp.quantity = Number(prod.get('ipo').properties.quantity);
                     prods.push(temp);
-                    console.log(temp);
                 });
             }
             await session.close();
@@ -112,7 +110,8 @@ module.exports = {
             let session = driver.session();
 
             let result = await session.run(
-                "MATCH (t:Transfer {sourceCode:$sourceCode}) return t;"
+                "MATCH (t:Transfer {sourceCode:$sourceCode})-[:DESTINATION]->(s:Stage) " + 
+                "RETURN t, s.stageId AS destinationId;"
                 ,{
                     sourceCode : code
                 }
@@ -120,13 +119,14 @@ module.exports = {
             let transfer;
             if(result.records.length>0){
                 transfer = result.records[0].get('t').properties;
-                console.log(transfer);
+                transfer.destinationId = result.records[0].get("destinationId");
             }
 
             await session.close();
-            return transfer;
+            return {transfer};
         }catch(err){
             console.log(`[ERR] getTransferBySourceCode(): ${err}`);
+            return {err};
         }
     },
 
@@ -148,13 +148,13 @@ module.exports = {
             let transfer;
             if(result.records.length>0){
                 transfer = result.records[0].get('t').properties;
-                console.log(transfer);
             }
 
             await session.close();
-            return transfer;
+            return {transfer};
         }catch(err){
             console.log(`[ERR] getTransferByDestinationCode(): ${err}`);
+            return {err}
         }
     },
 
@@ -168,21 +168,23 @@ module.exports = {
             let session = driver.session();
 
             let result = await session.run(
-                "MATCH (t:Transfer {transferId:$transferId}) return t;"
+                "MATCH (src:Stage)<-[:SOURCE]-(t:Transfer {transferId:$transferId})-[:DESTINATION]->(dest:Stage) " +
+                "RETURN t, src.stageId AS sourceId, dest.stageId AS destinationId;"
                 ,{
                     transferId : id
                 }
             );
             let transfer;
-            if(result.records[0].get('t').properties){
+            if(result.records[0]){
                 transfer = result.records[0].get('t').properties;
-                console.log(transfer);
+                transfer.sourceId = result.records[0].get("sourceId");
+                transfer.destinationId = result.records[0].get("destinationId");
             }
 
             await session.close();
             return transfer;
         }catch(err){
-            console.log(`[ERR] getTransferById(): ${err}`);
+            console.log(`[ERR] /getTransferById(): ${err}`);
         }
     },
 
@@ -191,21 +193,29 @@ module.exports = {
      * @param {Number} stage - The id of the Source
      * @return {Array} An array of Transfer Node objects
      */
-    getTransfersOfSource: async(stage) => {
+    getTransfersOfSource: async(stageId) => {
         try{
             let session = driver.session();
 
             let result = await session.run(
-                "MATCH (s:Stage{stageId:$stageId})<-[:SOURCE]-(t:Transfer) return t;"
+                "MATCH (src:Stage{stageId:$stageId})<-[:SOURCE]-(t:Transfer)-[:DESTINATION]->(dest:Stage) " +
+                " return t, src, dest;"
                 ,{
-                    stageId: stage
+                    stageId: stageId
             });
 
             let transfers = [];
             if(result.records.length>0){
-                result.records.forEach((trans) => {
-                    transfers.push(trans.get('t').properties);
-                    console.log(trans.get('t').properties);
+                result.records.forEach((record) => {
+                    let transfer = {
+                        ...record.get('t').properties,
+                        sourceId: record.get("src").properties.stageId,
+                        sourceName: record.get("src").properties.stageName,
+                        destinationId: record.get("dest") .properties.stageId,
+                        destinationName: record.get("dest").properties.stageName
+                    }
+                    transfers.push(transfer);
+                    
                 })
             }
 
@@ -213,6 +223,7 @@ module.exports = {
             return transfers;
         }catch(err){
             console.log(`[ERR] getTransfersOfSource(): ${err}`);
+            return {err};
         }
     },
 
@@ -221,21 +232,28 @@ module.exports = {
      * @param {Number} stage - The id of the Destination
      * @return {Array} An array of Transfer Node objects
      */
-    getTransfersOfDestination: async(stage) => {
+    getTransfersOfDestination: async(stageId) => {
         try{
             let session = driver.session();
 
             let result = await session.run(
-                "MATCH (s:Stage{stageId:$stageId})<-[:DESTINATION]-(t:Transfer) return t;"
+                "MATCH (dest:Stage{stageId:$stageId})<-[:DESTINATION]-(t:Transfer)-[:SOURCE]->(src:Stage) " +
+                "RETURN t, src, dest;"
                 ,{
-                    stageId: stage
+                    stageId: stageId
             });
 
             let transfers = [];
             if(result.records.length>0){
-                result.records.forEach((trans) => {
-                    transfers.push(trans.get('t').properties);
-                    console.log(trans.get('t').properties);
+                result.records.forEach((record) => {
+                    let transfer = {
+                        ...record.get('t').properties,
+                        sourceId: record.get("src").properties.stageId,
+                        sourceName: record.get("src").properties.stageName,
+                        destinationId: record.get("dest") .properties.stageId,
+                        destinationName: record.get("dest").properties.stageName
+                    }
+                    transfers.push(transfer);
                 })
             }
 
@@ -265,7 +283,6 @@ module.exports = {
             let transfers = [];
             if(result.records.length>0){
                 result.records.forEach((transfer) => {                        
-                    console.log(transfer.get('t').properties);
                     transfers.push(tranfer.get('t').properties);
                 });
             }

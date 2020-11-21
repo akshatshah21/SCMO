@@ -2,7 +2,6 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 const { customAlphabet } = require("nanoid");
 const router = require("express").Router();
-const { urlencoded } = require("body-parser");
 
 const {CODESTRING,CODELENGTH, TRANSFER_STATUS} = require("../config/options");
 const transfer = require('../neo4j-db/transfer');
@@ -73,13 +72,16 @@ router.post('/initiate', async (req,res) => {
 });
 
 router.post('/finish',async(req,res) => {
-    let destinationId = req.body.destinationId;
+    let destinationId = req.body.stageId;
     let transferId = req.body.transferId;
-    console.log(transferId);
 
     let trans = await getTransferById(transferId);
-    console.log(trans);
-
+    if(!trans) {
+        res.status(400).json({error: "Invalid destination or transfer ID"});
+    }
+    if(trans.destinationId !== destinationId) {
+        res.status(400).json({error: "Invalid destination ID"});
+    }
     // generating the destination code
     let code = {};
     code.destinationCode = nanoid();
@@ -105,19 +107,17 @@ router.post('/finish',async(req,res) => {
     res.json(code);
 });
 
-router.post('/verifySourceCode',urlencodedParser,async(req,res) => {
+router.post('/verifySourceCode', async (req,res) => {
     let code = req.body.code;
-    let found = await transfer.getTransferBySourceCode(code); 
-    console.log(found);
+    let result = await transfer.getTransferBySourceCode(code); 
 
-    res.status(200);
-
-    if(found){
+    if(result.transfer) {
         // since the code checks out we need to change its status to ongoing
-        let trans = await transfer.changeTransferStatus(found.transferId,TRANSFER_STATUS.ONGOING);
-        console.log(trans);
-        res.json({transferId : trans.transferId,destinationId : trans.destinationId, transferFound : true});
-    }else res.json({transferFound:false});
+        let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
+        res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
+    } else {
+        res.status(400).json({transferFound:false});
+    }
 });
 
 router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
@@ -126,24 +126,42 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
     let destinationId = req.body.destinationId;
     // getting the transfer by code
     let found = await transfer.getTransferByDestinationCode(code); 
-    console.log(found);
+    
 
-    res.status(200);
-
-    if(found){
+    if(found.transfer){
+        found = found.transfer;
         // since the code checks out we need to change its status to completed
         let trans = await transfer.changeTransferStatus(found.transferId,TRANSFER_STATUS.COMPLETED);
-        console.log(trans);
         //getting all the products in the transfer.
         let prods = await transfer.getAllProducts(transferId);
-        console.log(prods);
         
         //updating the quantity of products on the receiver's end.
         prods.forEach((prod) => {
             stage.updateQuantity(destinationId,prod.productId,prod.quantity);
         });
-        res.json({transferFound:true});
-    }else res.json({transferFound:false});
+        res.status(200).json({transferFound:true});
+    }else {
+        res.status(400).json({transferFound:false});
+    }
+});
+
+
+router.get("/:stageId/incoming", async (req, res) => {
+    let transfers = await transfer.getTransfersOfDestination(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
+});
+
+router.get("/:stageId/outgoing", async (req, res) => {
+    let transfers = await transfer.getTransfersOfSource(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
 });
 
 module.exports = router;

@@ -1,22 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function ShipmentCard(props) {
+export default function ShipmentCard({type, shipment, receiveClick}) {
   return (
     <div className="card row">
       <div className="card-content col s8">
-        <p>
-          <strong>To: </strong>
-          {props.shipment.recipient}
-        </p>
-        <p>
-          <strong>Start: </strong>
-          {props.shipment.start}
-        </p>
-        <p>
-          <strong>Products: </strong>
-          {props.shipment.products}
-        </p>
+        <h5>
+          <strong>{type === "incoming" ? "From" : "To" }: </strong>
+          {shipment.name}
+        </h5>
       </div>
       <div className="card-action col s4 right-align row">
         <Link to="/shipment">
@@ -24,6 +16,14 @@ export default function ShipmentCard(props) {
             Details
           </button>
         </Link>
+        <br/>
+        <br/>
+        {type === "incoming" && shipment.status === "ongoing" && 
+          <button className="btn green darken-3 white-text btn-flat center-align"
+            onClick={() => receiveClick(shipment.id)}>
+            Receive
+          </button>}
+        
       </div>
     </div>
   );

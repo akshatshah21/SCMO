@@ -30,6 +30,7 @@ function Login({ loginUser, errors, auth, history }) {
       username: input.username,
       password: input.password,
     };
+    console.log(userData);
     loginUser(userData);
   };
   return (
