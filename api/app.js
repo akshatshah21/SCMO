@@ -56,10 +56,10 @@ io.on("connection", socket => {
   });
   
   socket.on("map-client", (message) => {
-    console.log("map-client:" + message.transferId);
+    console.log("map-client, with transferId:" + message.transferId);
     let interval = setInterval(() => {
       socket.emit("location-update", locationMap.get(message.transferId));
-    }, 2000);
+    }, 5000);
     intervalMap.set(socket.id, interval);
   })
 })

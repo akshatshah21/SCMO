@@ -27,13 +27,13 @@ export default function ShipmentCard({ type, shipment, receiveClick }) {
         <br />
         <br />
         {type === "incoming" && shipment.status === "ongoing" && (
-          <button
+         <button
             className="btn green darken-3 white-text btn-flat center-align"
             onClick={() => receiveClick(shipment.id)}
           >
             Receive
           </button>
-        )}
+        )} 
       </div>
     </div>
   );

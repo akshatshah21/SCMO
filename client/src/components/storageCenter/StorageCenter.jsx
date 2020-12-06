@@ -11,7 +11,7 @@ export default function StorageCenter() {
       <Route exact path="/storage-center">
         <h1 className="center-align">Storage Center</h1>
         <div className="row center-align">
-          <div className="card col s4 offset-s2">
+          <div className="card col s8 offset-s2">
             <Link to="/storage-center/send">
               <h5>Send Shipment</h5>
             </Link>
