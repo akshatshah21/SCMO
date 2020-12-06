@@ -164,4 +164,14 @@ router.get("/:stageId/outgoing", async (req, res) => {
     }
 });
 
+
+router.get("/:transferId/products", async (req, res) => {
+    let products = await transfer.getAllProducts(req.params.transferId);
+    if(products.length === 0) {
+        res.status(404).json({error: "No such transfer found (no products for this transfer)"});
+    } else {
+        res.status(200).json(products);
+    }
+});
+
 module.exports = router;
