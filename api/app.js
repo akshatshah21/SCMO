@@ -47,17 +47,22 @@ io.on("connection", socket => {
       clearInterval(intervalMap.get(socket.id));
     }
   });
+
+  // Phone to api
 	socket.on("location-update", (message) => {
     console.log(message);
+    // add to DB
     locationMap.set(message.transferId, {
       latitude: message.latitude,
       longitude: message.longitude
     });
   });
   
+  // api to browser
   socket.on("map-client", (message) => {
     console.log("map-client, with transferId:" + message.transferId);
     let interval = setInterval(() => {
+      // retrieve loc from db
       socket.emit("location-update", locationMap.get(message.transferId));
     }, 5000);
     intervalMap.set(socket.id, interval);
