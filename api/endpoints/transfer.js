@@ -5,6 +5,7 @@ const router = require("express").Router();
 
 const {CODESTRING,CODELENGTH, TRANSFER_STATUS} = require("../config/options");
 const transfer = require('../neo4j-db/transfer');
+const pgtransfer = require('../postgis-db/transfer');
 const connection = require('../neo4j-db/connection');
 const driver = require("../neo4j-db/db");
 const { getTransferById } = require("../neo4j-db/transfer");
@@ -112,8 +113,13 @@ router.post('/verifySourceCode', async (req,res) => {
     let result = await transfer.getTransferBySourceCode(code); 
 
     if(result.transfer) {
+
         // since the code checks out we need to change its status to ongoing
         let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
+
+        //adding the transfer to the Transfer relation in postgres
+        pgtransfer.addTransfer(trans);
+
         res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
     } else {
         res.status(400).json({transferFound:false});
@@ -139,6 +145,10 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         prods.forEach((prod) => {
             stage.updateQuantity(destinationId,prod.productId,prod.quantity);
         });
+
+        //deleting the transfer row from the tranfer relation
+        pgtransfer.deleteTransferById(transferId);
+
         res.status(200).json({transferFound:true});
     }else {
         res.status(400).json({transferFound:false});

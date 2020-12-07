@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const uuid = require("uuid");
 
 const stage = require('../neo4j-db/stage');
+const pgstage = require('../postgis-db/stage');
 const { validateCreation, validateProductAddition } = require("../validation/stage");
 
 const urlencodedParser = bodyParser.urlencoded({extended:false});
@@ -14,6 +15,16 @@ const urlencodedParser = bodyParser.urlencoded({extended:false});
  */
 router.get("/",async (req,res) => {
     let data = await stage.getAllStages();
+    res.status(200).json(data);
+});
+
+/**
+ * @route GET api/stage/allStageLocations
+ * @desc Returns the location of all stages in Geojson.
+ * @access Public
+ */
+router.get("/allStageLocations",async (req,res) => {
+    let data = await pgstage.getAllStages();
     res.status(200).json(data);
 });
 
@@ -30,13 +41,26 @@ router.post("/create", async(req,res) => {
     let data = {
       stageName: req.body.stageName,
       stageId: uuid.v1(),
-      // staffCount : Number(req.body.staffCount),
-      // latitude : Number(req.body.latitude),
-      // longitude : Number(req.body.longitude),
-      // electricity : stage.electricity,
+      stageLat : Number(req.body.latitude),
+      stageLon : Number(req.body.longitude),
+      stageAdd : req.body.address,
+      stageEmail : req.body.email
     };
+      // add a comma above to include the below properties.
+      // staffCount : Number(req.body.staffCount),
+      // electricity : stage.electricity,
+
+    //adding the stage to the neo4j db.
+    console.log('adding stage to neo4j');
     let err = await stage.addStage(data);
     if(err) {
+        res.status(500).json(err);
+    }
+
+    //adding the stage to pg db.
+    console.log('adding stage to pg');
+    err = await pgstage.addStage(data);
+    if(err){
         res.status(500).json(err);
     } else {
         res.status(200).end();

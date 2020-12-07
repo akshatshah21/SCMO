@@ -11,20 +11,22 @@ const {
 /* SQL to setup the db
 CREATE TABLE Stage
 	(
-	  stageId character varying(36) NOT NULL,
-	  lat numeric,
-	  lon numeric,
-	  geom geometry(POINT,4326)
+	  stageId VARCHAR(36) NOT NULL,
+	  stageEmail VARCHAR(25),
+	  stageAdd TEXT,
+	  stageLat numeric,
+	  stageLon numeric,
+	  stageGeom geometry(POINT,4326)
 	);
 
 CREATE TABLE Transfer
 	(
-	  transferId character varying(36) NOT NULL,
-	  sourceId character varying(36) NOT NULL,
-	  destinationId character varying(36) NOT NULL,
-	  lat numeric,
-	  lon numeric,
-	  geom geometry(POINT,4326)
+	  transferId VARCHAR(36) NOT NULL,
+	  sourceId VARCHAR(36) NOT NULL,
+	  destinationId VARCHAR(36) NOT NULL,
+	  transferLat numeric,
+	  transferLon numeric,
+	  transferGeom geometry(POINT,4326)
 	);
 */
 

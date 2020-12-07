@@ -11,18 +11,25 @@ module.exports = {
     try {
       let session = driver.session();
       await session.run(
-        "CREATE (s:Stage { " +
-          "stageName: $stageName, " +
-          "stageId: $stageId " +
-          // Add comma above for these props
-          // "staffCount: $staffCount, " +
-          // "latitude : $latitude, " +
-          // "longitude : $longitude " +
-          // "electricity: $electricity"
-        "});",
+        `CREATE (s:Stage {
+          stageName: $stageName,
+          stageId: $stageId,
+          stageAdd: $stageAdd,
+          stageEmail: $stageEmail,
+          stageLat: $stageLat,
+          stageLon: $stageLon
+        });`,
+          // staffCount: $staffCount,
+          // latitude : $latitude,
+          // longitude : $longitude
+          // electricity: $electricity
         {
           stageName: stage.stageName,
           stageId: stage.stageId,
+          stageAdd: stage.stageAdd,
+          stageEmail: stage.stageEmail,
+          stageLat: stage.stageLat,
+          stageLon: stage.stageLon,
           // staffCount: stage.staffCount,
           // latitude: stage.latitude,
           // longitude: stage.longitude,
