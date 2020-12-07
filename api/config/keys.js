@@ -3,4 +3,10 @@ module.exports = {
   NEO4J_USERNAME: "neo4j",
   NEO4J_PASSWORD: "password",
   SECRET_OR_KEY: "secret",
+
+  //postgis related keys
+  POSTGIS_DB_USERNAME: "postgres",
+  POSTGIS_DB_PASSWORD: "crehan007",
+  POSTGIS_DB_URL: "localhost:5433",
+  POSTGIS_DB_DBNAME: "scmo",
 };
