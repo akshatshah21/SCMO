@@ -1,33 +1,41 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import M from "materialize-css";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { Marker, Popup } from "mapbox-gl";
 import io from "socket.io-client";
-import { connect } from "react-redux";
+import { MAPBOX_API_TOKEN } from "../../config/keys";
+import {
+  MAPBOX_STYLESHEET_LOCATION,
+  MAPBOX_START_ZOOM,
+  MAPBOX_START_CENTER,
+  SOCKETIO_URL,
+} from "../../config/options";
 
-const ENDPOINT = "http://127.0.0.1:5000"; // localhost. Change this
-var map, marker, markerPopup;
-
-markerPopup = new mapboxgl.Popup({ offset: 25 }).setText(
+const ENDPOINT = SOCKETIO_URL; // localhost. Change this
+var map;
+var shipmentPopup = new Popup({ offset: 25 }).setText(
   "Here's the shipment right now"
 );
 
 export default function Shipment({
   location: {
-    state: { type, shipment },
+    state: { type, shipmentId },
   },
-  auth,
 }) {
+  const [shipmentDetails, setShipmentDetails] = useState({});
   const [products, setProducts] = useState([]);
   const [shipmentLocation, setShipmentLocation] = useState({
     latitude: 0,
     longitude: 0,
   });
+  const [shipmentMarker, setShipmentMarker] = useState();
+  const [sourceMarker, setSourceMarker] = useState();
+  const [destinationMarker, setDestinationMarker] = useState();
 
   useEffect(() => {
     let getProducts = async () => {
       try {
-        let res = await axios.get("/api/transfer/" + shipment.id + "/products");
+        let res = await axios.get("/api/transfer/" + shipmentId + "/products");
         setProducts(res.data);
       } catch (error) {
         console.log(error);
@@ -35,43 +43,136 @@ export default function Shipment({
       }
     };
     getProducts();
-  }, [shipment]);
+    let getTransfer = async () => {
+      try {
+        let res = await axios.get("/api/transfer/" + shipmentId);
+        setShipmentDetails({
+          sourceName: res.data.sourceName,
+          destinationName: res.data.destinationName,
+          sourceEmail: res.data.sourceEmail,
+          destinationEmail: res.data.destinationEmail,
+          sourceLocation: res.data.sourceLocation,
+          destinationLocation: res.data.destinationLocation,
+          sourceAddress: res.data.sourceAddress,
+          destinationAddress: res.data.destinationAddress,
+          status: res.data.status,
+        });
+      } catch (error) {
+        console.log(error);
+        M.toast({ html: "Error" });
+      }
+    };
+    getTransfer();
+  }, [shipmentId]);
+
+  const addRouteToMap = geojson => {
+    if (map.getSource("route")) {
+      map.getSource("route").setData(geojson);
+    } else {
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: geojson,
+            },
+          },
+        },
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#3887be",
+          "line-width": 5,
+          "line-opacity": 0.75,
+        },
+      });
+    }
+  }
 
   useEffect(() => {
-    console.log("Map effect");
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoiYWtzaGF0c2hhaDIxIiwiYSI6ImNrZ3Vob2dpNjBvZDgycG5hOHMzbTVxdTMifQ.NXZnqYPxl7x-gp4bNsRRsg";
+    mapboxgl.accessToken = MAPBOX_API_TOKEN;
     map = new mapboxgl.Map({
       container: "map",
-      style: "mapbox://styles/mapbox/streets-v11", // stylesheet location
-      center: [73, 19], // starting position [lng, lat]
-      zoom: 7, // starting zoom
+      style: MAPBOX_STYLESHEET_LOCATION,
+      center: MAPBOX_START_CENTER, // starting position [lng, lat]
+      zoom: MAPBOX_START_ZOOM, // starting zoom
     });
-  }, [shipment]);
+    // console.log(shipmentDetails);
+    setSourceMarker(
+      new Marker()
+        .setLngLat(shipmentDetails.sourceLocation || [0, 0])
+        .setPopup(new Popup({ offset: 25 }).setText(shipmentDetails.sourceName))
+        .addTo(map)
+    );
+    setDestinationMarker(
+      new Marker()
+        .setLngLat(shipmentDetails.destinationLocation || [0, 0])
+        .setPopup(
+          new Popup({ offset: 25 }).setText(shipmentDetails.destinationName)
+        )
+        .addTo(map)
+    );
+    if (shipmentDetails.sourceLocation) {
+      let renderRoute = async () => {
+        let res = await axios.get(
+          `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${shipmentDetails.sourceLocation[0]},${shipmentDetails.sourceLocation[1]};${shipmentDetails.destinationLocation[0]},${shipmentDetails.destinationLocation[1]}?geometries=geojson&access_token=${MAPBOX_API_TOKEN}`
+        );
+        console.log(res.data.routes[0]);
+        let route = res.data.routes[0].geometry.coordinates;
+        let geojson = {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: route,
+          },
+        };
+        
+        // Problematic part
+        // Route is not loaded the first time, page needs to be refreshed!
+        map.on("style.load", () => {
+          console.log("On load");
+          addRouteToMap(geojson);
+        });
+
+        map.on("styledata", () => {
+          console.log("Style");
+          addRouteToMap(geojson);
+        })
+      };
+      renderRoute();
+    }
+  }, [shipmentDetails]);
 
   useEffect(() => {
     const socket = io(ENDPOINT);
     socket.on("connect", () => {
-      console.log("SocketIO client connected to server");
-      socket.emit("map-client", { transferId: shipment.id });
+      // console.log("SocketIO client connected to server");
+      socket.emit("map-client", { transferId: shipmentId });
     });
     socket.on("location-update", (msg) => {
-      console.log(msg);
+      // console.log(msg);
       if (msg) {
         setShipmentLocation(msg);
       }
     });
     return () => socket.disconnect();
-  }, [shipment]);
+  }, [shipmentId]);
 
   useEffect(() => {
-    if (marker) {
-      marker.remove();
-    }
-    marker = new mapboxgl.Marker({ color: "#ff1744" })
-      .setLngLat([shipmentLocation.longitude, shipmentLocation.latitude])
-      .setPopup(markerPopup)
-      .addTo(map);
+    setShipmentMarker(
+      new mapboxgl.Marker({ color: "#ff1744" })
+        .setLngLat([shipmentLocation.longitude, shipmentLocation.latitude])
+        .setPopup(shipmentPopup)
+        .addTo(map)
+    );
   }, [shipmentLocation]);
 
   return (
@@ -79,17 +180,28 @@ export default function Shipment({
       <div className="col s12 m2 l3 grey lighten-4" style={{ height: "100%" }}>
         <h5 className="center-align text-muted">Details of Transfer</h5>
         <h5>
-          <strong>{type === "incoming" ? "From" : "To"}: </strong>
-          {shipment.name}
+          {type === "incoming"
+            ? `From: ${shipmentDetails.sourceName}`
+            : `To: ${shipmentDetails.destinationName}`}
         </h5>
-        {/* backend doesn't process stage's address, email so do that and add here later */}
-        {shipment.status === "completed" ? (
-          <h4 class="center green-text">Completed</h4>
-        ) : (
-          <h4 class="red-text center">Ongoing</h4>
-        )}
+        <p>
+          Address:{" "}
+          {type === "incoming"
+            ? shipmentDetails.sourceAddress
+            : shipmentDetails.destinationAddress}
+        </p>
+        <p>
+          Email:{" "}
+          {type === "incoming"
+            ? shipmentDetails.sourceEmail
+            : shipmentDetails.destinationEmail}
+        </p>
+        {shipmentDetails.status === "completed" ? (
+          <h4 className="center green-text">Completed</h4>
+        ) : shipmentDetails.status === "ongoing" ? (
+          <h4 className="red-text center">Ongoing</h4>
+        ) : null}
         <h5>Products</h5>
-
         <table>
           <tbody>
             <tr>

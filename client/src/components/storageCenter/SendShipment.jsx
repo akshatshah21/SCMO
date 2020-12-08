@@ -76,11 +76,12 @@ function SendShipment({ history, stageId }) {
       }
     })
     if(!isValid) return;
-    if(products.length === 0) {
-      M.toast({html: "Please select at least one product"});
-    }
     if(recipientId === "") {
       M.toast({html: "Please select a recipient"});
+    }
+    if(products.length === 0) {
+      M.toast({html: "Please select at least one product"});
+      return;
     }
     let formData = {
       recipientId: recipientId,
