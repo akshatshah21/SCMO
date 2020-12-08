@@ -174,4 +174,23 @@ router.get("/:transferId/products", async (req, res) => {
     }
 });
 
+// Delete this, for dev only
+router.get("/:transferId", async(req, res) => {
+    let t = transfer.getTransferById(req.params.transferId);
+    if(t) {
+        t.sourceName = "Source Stage Name";
+        t.destinationName = "Destination Stage Name";
+        t.sourceEmail = "source@scmo.com";
+        t.destinationEmail = "destination@scmo.com";
+        t.sourceLocation = [74, 18];
+        t.destinationLocation = [73, 19];
+        t.sourceAddress = "Source Address";
+        t.destinationAddress = "Destination Address";
+        t.status = "completed";
+        res.send(t);
+    } else {
+        res.status(404).json({error: "No such transfer found"});
+    }
+});
+
 module.exports = router;

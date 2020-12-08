@@ -15,7 +15,7 @@ export default function ShipmentCard({ type, shipment, receiveClick }) {
           to={{
             pathname: "/shipment",
             state: {
-              shipment,
+              shipmentId: shipment.id,
               type
             },
           }}
