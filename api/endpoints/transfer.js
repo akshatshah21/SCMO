@@ -80,6 +80,15 @@ router.get("/:stageId/outgoing", async (req, res) => {
     }
 });
 
+router.get("/:transferId/products", async (req, res) => {
+    let products = await transfer.getAllProducts(req.params.transferId);
+    if(products.length === 0) {
+        res.status(404).json({error: "No such transfer found (no products for this transfer)"});
+    } else {
+        res.status(200).json(products);
+    }
+});
+
 /*
     function to create a transfer node object and send a code.
 */
@@ -230,5 +239,26 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         res.status(400).json({transferFound:false});
     }
 });
+
+
+router.get("/:stageId/incoming", async (req, res) => {
+    let transfers = await transfer.getTransfersOfDestination(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
+});
+
+router.get("/:stageId/outgoing", async (req, res) => {
+    let transfers = await transfer.getTransfersOfSource(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
+});
+
+
 
 module.exports = router;

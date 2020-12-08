@@ -2,7 +2,6 @@ import React from "react";
 import { Link, Route } from "react-router-dom";
 
 import SendShipment from "./SendShipment";
-import ReceiveShipment from "./ReceiveShipment";
 import Inventory from "./Inventory";
 import ShipmentsList from "./ShipmentsList";
 
@@ -12,14 +11,9 @@ export default function StorageCenter() {
       <Route exact path="/storage-center">
         <h1 className="center-align">Storage Center</h1>
         <div className="row center-align">
-          <div className="card col s4 offset-s2">
+          <div className="card col s8 offset-s2">
             <Link to="/storage-center/send">
               <h5>Send Shipment</h5>
-            </Link>
-          </div>
-          <div className="card col s4">
-            <Link to="/storage-center/receive">
-              <h5>Receive Shipment</h5>
             </Link>
           </div>
         </div>
@@ -44,7 +38,6 @@ export default function StorageCenter() {
         </div>
       </Route>
       <Route path="/storage-center/send" component={SendShipment} />
-      <Route path="/storage-center/receive" component={ReceiveShipment} />
       <Route
         path="/storage-center/incoming"
         render={() => (
