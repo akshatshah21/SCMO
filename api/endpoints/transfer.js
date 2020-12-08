@@ -14,6 +14,71 @@ const stage = require("../neo4j-db/stage");
 const nanoid = customAlphabet(CODESTRING,CODELENGTH); // Creating the nanoid object to generate the code
 let urlencodedParser = bodyParser.urlencoded({extended:false});
 
+/*
+    function to return the transfer location, and associated products along with the details of destination and source.
+    return object : 
+    {
+        "coordinates" : [x,y],
+        "products" : [
+            {
+                "productId" : String,
+                "quatity" : Number
+            },....
+        ]
+        "destination" : {
+            destinationId : String,
+        },
+        "source" : {
+            sourceId : String,...
+        }
+    }
+*/
+router.get('/:transferId/details', async (req,res) => {
+    let id = req.params.transferId;
+    let ans = {};
+
+    // getting the coordinates of the transfer.
+    let trans = await pgtransfer.getTransferById(id);
+    let temp = trans.features;
+    if(temp.length>0){
+        ans.coordinates = temp[0].geometry.coordinates;
+    }else{
+        res.status(400).json({error: "Invalid transfer ID"});
+    }
+
+    //getting all products of the transfer
+    temp = await transfer.getAllProducts(id); 
+    ans.products = temp;
+
+    //getting details of destination.
+    temp = trans.features[0]["destinationId".toLowerCase()];
+    console.log(temp);
+    ans.destination = await stage.getStageById(temp);
+
+    //getting details of source.
+    temp = trans.features[0]["sourceId".toLowerCase()];
+    ans.source = await stage.getStageById(temp);
+
+    res.status(200).json(ans);
+});
+
+router.get("/:stageId/incoming", async (req, res) => {
+    let transfers = await transfer.getTransfersOfDestination(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
+});
+
+router.get("/:stageId/outgoing", async (req, res) => {
+    let transfers = await transfer.getTransfersOfSource(req.params.stageId);
+    if(Array.isArray(transfers)) {
+        return res.status(200).json(transfers);
+    } else {
+        return res.status(400).json(transfers);
+    }
+});
 
 /*
     function to create a transfer node object and send a code.
@@ -28,13 +93,16 @@ router.post('/initiate', async (req,res) => {
 
     // creating the trans object.
     let trans = {
+        transferId : uuid.v1(),
+        transferStatus : TRANSFER_STATUS.PENDING,
         connectionId : "",
         sourceId : req.body.senderId,
         destinationId : req.body.recipientId,
         sourceCode : "",
         destinationCode : "",
-        transferId : uuid.v1(),
-        transferStatus : TRANSFER_STATUS.PENDING,
+        transferLat : Number(req.body.latitude),
+        transferLon : Number(req.body.longitude),
+        transferStartTime : req.body.startTime, 
         products : req.body.products
     };
     
@@ -66,16 +134,26 @@ router.post('/initiate', async (req,res) => {
     result = await transfer.addTransfer(trans);
     if(result.err) {
         res.status(500).json(result.err);
-    } else {
-        // returning the code to the sender.
-        res.status(200).json(code);
     }
+    console.log("Node in Neo4j is created");
+    
+    //inserting the row into the transfer relation
+    result = await pgtransfer.addTransfer(trans);
+    if(result.err) {
+        res.status(500).json(result.err);
+    }
+    console.log("Data inserted into transfer relation");
+
+    // returning the code to the sender.
+    res.status(200).json(code);
 });
 
 router.post('/finish',async(req,res) => {
     let destinationId = req.body.stageId;
     let transferId = req.body.transferId;
+    let transferEndTime = req.body.endTime;
 
+    //getting the transfer node.
     let trans = await getTransferById(transferId);
     if(!trans) {
         res.status(400).json({error: "Invalid destination or transfer ID"});
@@ -88,15 +166,16 @@ router.post('/finish',async(req,res) => {
     code.destinationCode = nanoid();
     trans.destinationCode = code.destinationCode;
 
-    //updating the destinationCode of the transfer in the database.
+    //updating the destinationCode and transferEndTime of the transfer in Neo4j.
     try{
         let session = driver.session();
         await session.run(
             "MATCH (t:Transfer{ transferId : $transferId }) "+
-            "SET t.destinationCode = $destinationCode;"
+            "SET t.destinationCode = $destinationCode, t.tranferEndTime = $transferEndTime;"
             ,{
                 transferId : trans.transferId,
-                destinationCode : trans.destinationCode
+                destinationCode : trans.destinationCode,
+                transferEndTime : transferEndTime
             }
         );
         await session.close();
@@ -116,9 +195,6 @@ router.post('/verifySourceCode', async (req,res) => {
 
         // since the code checks out we need to change its status to ongoing
         let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
-
-        //adding the transfer to the Transfer relation in postgres
-        pgtransfer.addTransfer(trans);
 
         res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
     } else {
@@ -146,31 +222,12 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
             stage.updateQuantity(destinationId,prod.productId,prod.quantity);
         });
 
-        //deleting the transfer row from the tranfer relation
-        pgtransfer.deleteTransferById(transferId);
+        //deleting the transfer row from transfer relation from postgis.
+        await pgtransfer.deleteTransferById(transferId);
 
         res.status(200).json({transferFound:true});
     }else {
         res.status(400).json({transferFound:false});
-    }
-});
-
-
-router.get("/:stageId/incoming", async (req, res) => {
-    let transfers = await transfer.getTransfersOfDestination(req.params.stageId);
-    if(Array.isArray(transfers)) {
-        return res.status(200).json(transfers);
-    } else {
-        return res.status(400).json(transfers);
-    }
-});
-
-router.get("/:stageId/outgoing", async (req, res) => {
-    let transfers = await transfer.getTransfersOfSource(req.params.stageId);
-    if(Array.isArray(transfers)) {
-        return res.status(200).json(transfers);
-    } else {
-        return res.status(400).json(transfers);
     }
 });
 

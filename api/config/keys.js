@@ -7,6 +7,7 @@ module.exports = {
   //postgis related keys
   POSTGIS_DB_USERNAME: "postgres",
   POSTGIS_DB_PASSWORD: "crehan007",
-  POSTGIS_DB_URL: "localhost:5433",
+  POSTGIS_DB_URL: "localhost",
+  POSTGIS_DB_PORT : "5433",
   POSTGIS_DB_DBNAME: "scmo",
 };

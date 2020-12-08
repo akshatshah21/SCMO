@@ -8,20 +8,22 @@ module.exports = {
     addTransfer: async(transferDetails) => { 
         try{
             let session = driver.session();
-            await session.run(
-                "MATCH (c:Connection{connectionId:$connectionId}) "+
-                "CREATE (c)<-[:BELONGS_TO]-(t:Transfer{"+
-                    "transferId : $transferId,"+
-                    "transferStatus : $transferStatus, "+
-                    "sourceCode : $sourceCode,"+
-                    "destinationCode : $destinationCode"+
-                "});"
+            await session.run(`
+                MATCH (c:Connection{connectionId:$connectionId})
+                CREATE (c)<-[:BELONGS_TO]-(t:Transfer{
+                    transferId : $transferId,
+                    transferStatus : $transferStatus, 
+                    sourceCode : $sourceCode,
+                    destinationCode : $destinationCode,
+                    transferStartTime : $transferStartTime
+                });`
                 ,{
                     connectionId: transferDetails.connectionId,
                     transferId: transferDetails.transferId,
                     transferStatus : transferDetails.transferStatus,
                     sourceCode : transferDetails.sourceCode,
-                    destinationCode : transferDetails.destinationCode
+                    destinationCode : transferDetails.destinationCode,
+                    transferStartTime : transferDetails.transferStartTime,
                 }
             );
 

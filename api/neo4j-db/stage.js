@@ -15,21 +15,15 @@ module.exports = {
           stageName: $stageName,
           stageId: $stageId,
           stageAdd: $stageAdd,
-          stageEmail: $stageEmail,
-          stageLat: $stageLat,
-          stageLon: $stageLon
+          stageEmail: $stageEmail
         });`,
           // staffCount: $staffCount,
-          // latitude : $latitude,
-          // longitude : $longitude
           // electricity: $electricity
         {
           stageName: stage.stageName,
           stageId: stage.stageId,
           stageAdd: stage.stageAdd,
           stageEmail: stage.stageEmail,
-          stageLat: stage.stageLat,
-          stageLon: stage.stageLon,
           // staffCount: stage.staffCount,
           // latitude: stage.latitude,
           // longitude: stage.longitude,
@@ -155,7 +149,7 @@ module.exports = {
       await session.close();
       return stage;
     } catch (err) {
-      console.log(`[ERR] getStageByName(): ${err}`);
+      console.log(`[ERR] getStageById(): ${err}`);
     }
   },
 
