@@ -8,6 +8,9 @@ const auth = require("./endpoints/auth");
 const stage = require("./endpoints/stage");
 const product = require("./endpoints/product");
 const transfer = require("./endpoints/transfer");
+
+const pgtransfer = require("./postgis-db/transfer");
+
 const app = express();
 
 const PORT = process.env.port || 5000;
@@ -49,9 +52,10 @@ io.on("connection", socket => {
   });
 
   // Phone to api
-	socket.on("location-update", (message) => {
+	socket.on("location-update", async(message) => {
     console.log(message);
     // add to DB
+    await pgtransfer.updateTransferLocation(message.transferId,message.latitude,message.longitude);
     locationMap.set(message.transferId, {
       latitude: message.latitude,
       longitude: message.longitude
@@ -59,10 +63,14 @@ io.on("connection", socket => {
   });
   
   // api to browser
-  socket.on("map-client", (message) => {
+  socket.on("map-client", async(message) => {
     console.log("map-client, with transferId:" + message.transferId);
-    let interval = setInterval(() => {
+    let interval = setInterval(async() => {
       // retrieve loc from db
+      let coordinates = await pgtransfer.getTransferById(message.transferId);
+      coordinates = coordinates.features[0];
+      message.latitude = coordinates.transferLat;
+      message.longitude = coordinates.transferLon;
       socket.emit("location-update", locationMap.get(message.transferId));
     }, 5000);
     intervalMap.set(socket.id, interval);
