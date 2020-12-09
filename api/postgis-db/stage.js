@@ -9,9 +9,8 @@ module.exports = {
         let client = await pool.connect();
         try {
             var query = `
-                INSERT INTO Stage (stageId,stageAdd,stageEmail,stageLat,stageLon,stageGeom) 
-                VALUES ('${stage.stageId}','${stage.stageAdd}','${stage.stageEmail}',
-                    ${stage.stageLat},${stage.stageLon},
+                INSERT INTO Stage (stageId,stageLat,stageLon,stageGeom) 
+                VALUES ('${stage.stageId}',${stage.stageLat},${stage.stageLon},
                     ST_SetSRID(ST_MakePoint(${stage.stageLon},${stage.stageLat}),4326)
                 );
             `;
@@ -24,9 +23,9 @@ module.exports = {
     },
 
     /**
-     * Getting the location all Stages
+     * Getting the location a stage
      * @param {String} id stage id
-     * @return {Array} array of all stages in Geojson
+     * @return {Array} array of the stage in Geojson
      */
     getStageById: async (id) => {
         let client = await pool.connect();
@@ -46,9 +45,11 @@ module.exports = {
             `;
             let res = await client.query(query);
             let ans;
+            console.log("RES:");
+            // console.log(res);
             if(res.rows.length>0){
                 ans = res.rows[0].row_to_json;
-                console.log(ans);
+                // console.log(ans);
             }
             await client.release();
             return ans;
@@ -72,7 +73,6 @@ module.exports = {
                         'Feature' As type,
                         ST_AsGeoJSON(st.stageGeom)::json As geometry,
                         stageId as stageId,
-                        stageEmail as stageEmail,
                         stageLat as stageLat,
                         stageLon as stageLon
                     FROM Stage As st

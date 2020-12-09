@@ -36,7 +36,7 @@ const io = socketIo(server);
 server.listen(PORT, HOSTNAME, () => console.log(`Listening on port ${PORT}`));
 
 // Map for transferId --> location
-let locationMap = new Map();
+// let locationMap = new Map();
 
 // Map for socket id --> interval
 let intervalMap = new Map();
@@ -56,22 +56,21 @@ io.on("connection", socket => {
     console.log(message);
     // add to DB
     await pgtransfer.updateTransferLocation(message.transferId,message.latitude,message.longitude);
-    locationMap.set(message.transferId, {
-      latitude: message.latitude,
-      longitude: message.longitude
-    });
   });
   
   // api to browser
   socket.on("map-client", async(message) => {
-    console.log("map-client, with transferId:" + message.transferId);
+    // console.log("map-client, with transferId:" + message.transferId);
     let interval = setInterval(async() => {
       // retrieve loc from db
       let coordinates = await pgtransfer.getTransferById(message.transferId);
       coordinates = coordinates.features[0];
-      message.latitude = coordinates.transferLat;
-      message.longitude = coordinates.transferLon;
-      socket.emit("location-update", locationMap.get(message.transferId));
+      // console.log(coordinates);
+      let location = {
+        latitude: coordinates.transferlat,
+        longitude: coordinates.transferlon
+      };
+      socket.emit("location-update", location);
     }, 5000);
     intervalMap.set(socket.id, interval);
   })

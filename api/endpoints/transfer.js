@@ -10,6 +10,7 @@ const connection = require('../neo4j-db/connection');
 const driver = require("../neo4j-db/db");
 const { getTransferById } = require("../neo4j-db/transfer");
 const stage = require("../neo4j-db/stage");
+const pgstage = require("../postgis-db/stage");
 
 const nanoid = customAlphabet(CODESTRING,CODELENGTH); // Creating the nanoid object to generate the code
 let urlencodedParser = bodyParser.urlencoded({extended:false});
@@ -34,32 +35,29 @@ let urlencodedParser = bodyParser.urlencoded({extended:false});
     }
 */
 router.get('/:transferId/details', async (req,res) => {
-    let id = req.params.transferId;
-    let ans = {};
 
-    // getting the coordinates of the transfer.
-    let trans = await pgtransfer.getTransferById(id);
-    let temp = trans.features;
-    if(temp.length>0){
-        ans.coordinates = temp[0].geometry.coordinates;
-    }else{
-        res.status(400).json({error: "Invalid transfer ID"});
+    let trans = await transfer.getTransferById(req.params.transferId);
+    if(!trans) {
+        res.status(404).json({error: "No such transfer found"});
     }
+    
+    if(trans.transferStatus === "ongoing") {
+        let transferLocation = await pgtransfer.getTransferById(req.params.transferId);
+        if(transferLocation.features && transferLocation.features.length > 0 && transferLocation.features[0].geometry) {
+            trans.coordinates = transferLocation.features[0].geometry.coordinates;
+        }
+    }
+    
+    trans.products = await transfer.getAllProducts(req.params.transferId);
 
-    //getting all products of the transfer
-    temp = await transfer.getAllProducts(id); 
-    ans.products = temp;
+    trans.source = await stage.getStageById(trans.sourceId);
+    trans.destination = await stage.getStageById(trans.destinationId);
 
-    //getting details of destination.
-    temp = trans.features[0]["destinationId".toLowerCase()];
-    console.log(temp);
-    ans.destination = await stage.getStageById(temp);
+    trans.source.location = (await pgstage.getStageById(trans.sourceId)).features[0].geometry.coordinates;
+    trans.destination.location = (await pgstage.getStageById(trans.destinationId)).features[0].geometry.coordinates;
 
-    //getting details of source.
-    temp = trans.features[0]["sourceId".toLowerCase()];
-    ans.source = await stage.getStageById(temp);
+    res.json(trans);
 
-    res.status(200).json(ans);
 });
 
 /*
@@ -82,9 +80,9 @@ router.post('/initiate', async (req,res) => {
         destinationId : req.body.recipientId,
         sourceCode : "",
         destinationCode : "",
-        transferLat : Number(req.body.latitude),
-        transferLon : Number(req.body.longitude),
-        transferStartTime : req.body.startTime, 
+        // transferLat : Number(req.body.latitude),
+        // transferLon : Number(req.body.longitude),
+        // transferStartTime : req.body.startTime, 
         products : req.body.products
     };
     
@@ -133,7 +131,7 @@ router.post('/initiate', async (req,res) => {
 router.post('/finish',async(req,res) => {
     let destinationId = req.body.stageId;
     let transferId = req.body.transferId;
-    let transferEndTime = req.body.endTime;
+    
 
     //getting the transfer node.
     let trans = await getTransferById(transferId);
@@ -153,11 +151,10 @@ router.post('/finish',async(req,res) => {
         let session = driver.session();
         await session.run(
             "MATCH (t:Transfer{ transferId : $transferId }) "+
-            "SET t.destinationCode = $destinationCode, t.tranferEndTime = $transferEndTime;"
+            "SET t.destinationCode = $destinationCode;"
             ,{
                 transferId : trans.transferId,
-                destinationCode : trans.destinationCode,
-                transferEndTime : transferEndTime
+                destinationCode : trans.destinationCode
             }
         );
         await session.close();
@@ -177,6 +174,7 @@ router.post('/verifySourceCode', async (req,res) => {
 
         // since the code checks out we need to change its status to ongoing
         let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
+        await transfer.setStartTime(trans.transferId, (new Date()).toLocaleString());
 
         res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
     } else {
@@ -196,6 +194,7 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         found = found.transfer;
         // since the code checks out we need to change its status to completed
         let trans = await transfer.changeTransferStatus(found.transferId,TRANSFER_STATUS.COMPLETED);
+        await transfer.setEndTime(trans.transferId, (new Date()).toISOString());
         //getting all the products in the transfer.
         let prods = await transfer.getAllProducts(transferId);
         
@@ -235,6 +234,7 @@ router.get("/:stageId/outgoing", async (req, res) => {
 
 router.get("/:transferId/products", async (req, res) => {
     let products = await transfer.getAllProducts(req.params.transferId);
+    console.log(products);
     if(products.length === 0) {
         res.status(404).json({error: "No such transfer found (no products for this transfer)"});
     } else {

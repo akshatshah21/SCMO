@@ -46,18 +46,19 @@ router.post("/create", async(req,res) => {
       stageAdd : req.body.address,
       stageEmail : req.body.email
     };
+    // console.log(data);
       // add a comma above to include the below properties.
       // staffCount : Number(req.body.staffCount),
       // electricity : stage.electricity,
 
-    //adding the stage to the neo4j db.
+    // adding the stage to the neo4j db.
     console.log('adding stage to neo4j');
     let err = await stage.addStage(data);
     if(err) {
         res.status(500).json(err);
     }
 
-    //adding the stage to pg db.
+    // adding the stage to pg db.
     console.log('adding stage to pg');
     err = await pgstage.addStage(data);
     if(err){

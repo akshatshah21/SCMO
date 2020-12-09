@@ -12,6 +12,7 @@ import Authenticate from "./components/auth/Authenticate";
 import setAuthToken from "./utils/setAuthToken";
 import { setCurrentUser, logoutUser } from "./redux/actions/authActions";
 import PrivateRoute from "./components/auth/PrivateRoute";
+import Admin from "./components/admin/Admin";
 
 if (localStorage.jwt) {
   const token = localStorage.jwt;
@@ -38,9 +39,17 @@ function App({ auth, logoutUser }) {
               </li>
               {auth.isAuthenticated ?
               <>
-                <li>
-                  <Link to="/storage-center">Storage Center</Link>
-                </li>
+                {/* {auth.user.type === "stage" &&   */}
+                  <li>
+                    <Link to="/storage-center">Storage Center</Link>
+                  </li>
+                {/* } */}
+                {/* {auth.user.type === "admin" &&  */}
+                   <li>
+                    <Link to="/admin">Admin</Link>
+                  </li>
+                {/* } */}
+               
                 <li>
                   <a href="/" onClick={(e) => {
                     console.log("Logout click")
@@ -63,6 +72,10 @@ function App({ auth, logoutUser }) {
             <PrivateRoute
               path="/storage-center"
               component={StorageCenter}
+            />
+            <PrivateRoute
+              path="/admin"
+              component={Admin}
             />
           </div>
         </div>

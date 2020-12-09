@@ -33,30 +33,28 @@ export default function Shipment({
   const [destinationMarker, setDestinationMarker] = useState();
 
   useEffect(() => {
-    let getProducts = async () => {
-      try {
-        let res = await axios.get("/api/transfer/" + shipmentId + "/products");
-        setProducts(res.data);
-      } catch (error) {
-        console.log(error);
-        M.toast({ html: "Error" });
-      }
-    };
-    getProducts();
     let getTransfer = async () => {
       try {
-        let res = await axios.get("/api/transfer/" + shipmentId);
+
+        let {data: transfer} = await axios.get("/api/transfer/" + shipmentId + "/details");
+        // console.log(transfer);
+
         setShipmentDetails({
-          sourceName: res.data.sourceName,
-          destinationName: res.data.destinationName,
-          sourceEmail: res.data.sourceEmail,
-          destinationEmail: res.data.destinationEmail,
-          sourceLocation: res.data.sourceLocation,
-          destinationLocation: res.data.destinationLocation,
-          sourceAddress: res.data.sourceAddress,
-          destinationAddress: res.data.destinationAddress,
-          status: res.data.status,
+          sourceName: transfer.source.stageName,
+          destinationName: transfer.destination.stageName,
+          sourceEmail: transfer.source.stageEmail,
+          destinationEmail: transfer.destination.stageEmail,
+          startTime: transfer.transferStartTime,
+          endTime: transfer.transferEndTime,
+          sourceLocation: transfer.source.location,
+          destinationLocation: transfer.destination.location,
+          sourceAddress: transfer.source.stageAdd,
+          destinationAddress: transfer.destination.stageAdd,
+          status: transfer.transferStatus,
         });
+
+        setProducts(transfer.products);
+
       } catch (error) {
         console.log(error);
         M.toast({ html: "Error" });
@@ -122,9 +120,9 @@ export default function Shipment({
     if (shipmentDetails.sourceLocation) {
       let renderRoute = async () => {
         let res = await axios.get(
-          `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${shipmentDetails.sourceLocation[0]},${shipmentDetails.sourceLocation[1]};${shipmentDetails.destinationLocation[0]},${shipmentDetails.destinationLocation[1]}?geometries=geojson&access_token=${MAPBOX_API_TOKEN}`
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${shipmentDetails.sourceLocation[0]},${shipmentDetails.sourceLocation[1]};${shipmentDetails.destinationLocation[0]},${shipmentDetails.destinationLocation[1]}?geometries=geojson&access_token=${MAPBOX_API_TOKEN}`
         );
-        console.log(res.data.routes[0]);
+        console.log(res.data);
         let route = res.data.routes[0].geometry.coordinates;
         let geojson = {
           type: "Feature",
@@ -138,12 +136,12 @@ export default function Shipment({
         // Problematic part
         // Route is not loaded the first time, page needs to be refreshed!
         map.on("style.load", () => {
-          console.log("On load");
+          // console.log("On load");
           addRouteToMap(geojson);
         });
 
         map.on("styledata", () => {
-          console.log("Style");
+          // console.log("Style");
           addRouteToMap(geojson);
         })
       };
@@ -152,33 +150,38 @@ export default function Shipment({
   }, [shipmentDetails]);
 
   useEffect(() => {
-    const socket = io(ENDPOINT);
-    socket.on("connect", () => {
-      // console.log("SocketIO client connected to server");
-      socket.emit("map-client", { transferId: shipmentId });
-    });
-    socket.on("location-update", (msg) => {
-      // console.log(msg);
-      if (msg) {
-        setShipmentLocation(msg);
-      }
-    });
-    return () => socket.disconnect();
-  }, [shipmentId]);
+    if(shipmentDetails.status === "ongoing") {
+      const socket = io(ENDPOINT);
+      socket.on("connect", () => {
+        // console.log("SocketIO client connected to server");
+        socket.emit("map-client", { transferId: shipmentId });
+      });
+      socket.on("location-update", (msg) => {
+        console.log(msg);
+        if (msg) {
+          setShipmentLocation(msg);
+        }
+      });
+      return () => socket.disconnect();
+    }
+  }, [shipmentId, shipmentDetails]);
 
   useEffect(() => {
-    setShipmentMarker(
-      new mapboxgl.Marker({ color: "#ff1744" })
+    if(shipmentDetails.status === "ongoing") {
+      setShipmentMarker(prevMarker => {
+        if(prevMarker) prevMarker.remove();
+        return new mapboxgl.Marker({ color: "#ff1744" })
         .setLngLat([shipmentLocation.longitude, shipmentLocation.latitude])
         .setPopup(shipmentPopup)
         .addTo(map)
-    );
-  }, [shipmentLocation]);
+      });
+    }
+  }, [shipmentLocation, shipmentDetails]);
 
   return (
     <div className="row" style={{ height: "90vh" }}>
       <div className="col s12 m2 l3 grey lighten-4" style={{ height: "100%" }}>
-        <h5 className="center-align text-muted">Details of Transfer</h5>
+        <h5 className="text-muted">Details of Transfer</h5>
         <h5>
           {type === "incoming"
             ? `From: ${shipmentDetails.sourceName}`
@@ -201,6 +204,8 @@ export default function Shipment({
         ) : shipmentDetails.status === "ongoing" ? (
           <h4 className="red-text center">Ongoing</h4>
         ) : null}
+        <p>Start: {shipmentDetails.startTime}</p>
+        {shipmentDetails.status === "completed" && <p>End: {shipmentDetails.endTime}</p>}
         <h5>Products</h5>
         <table>
           <tbody>

@@ -118,7 +118,7 @@ module.exports = {
       let stage;
       if (result.records[0].get("s").properties) {
         stage = result.records[0].get("s").properties;
-        console.log(stage);
+        // console.log(stage);
       }
       await session.close();
       return stage;
@@ -144,7 +144,7 @@ module.exports = {
       let stage;
       if (result.records[0].get("s").properties) {
         stage = result.records[0].get("s").properties;
-        console.log(stage);
+        // console.log(stage);
       }
       await session.close();
       return stage;

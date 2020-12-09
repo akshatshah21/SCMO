@@ -9,11 +9,9 @@ module.exports = {
         let client = await pool.connect();
         try {
             var query = `
-                INSERT INTO Transfer (transferId,sourceId,destinationId,transferLat,transferLon,transferGeom) 
+                INSERT INTO Transfer (transferId,sourceId,destinationId) 
                 VALUES (
-                    '${transfer.transferId}','${transfer.sourceId}','${transfer.destinationId}',
-                    ${transfer.transferLat},${transfer.transferLon},
-                    ST_SetSRID(ST_MakePoint(${transfer.transferLon},${transfer.transferLat}),4326)
+                    '${transfer.transferId}','${transfer.sourceId}','${transfer.destinationId}'
                 );
             `;
             //console.log(query);

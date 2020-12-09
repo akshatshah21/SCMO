@@ -3,7 +3,7 @@ const driver = require("./db");
 module.exports = {
     /**
      * Add a transfer node in the database
-     * @param2 {Object} transferDetails - Details of the transfer
+     * @param {Object} transferDetails - Details of the transfer
      */
     addTransfer: async(transferDetails) => { 
         try{
@@ -14,16 +14,14 @@ module.exports = {
                     transferId : $transferId,
                     transferStatus : $transferStatus, 
                     sourceCode : $sourceCode,
-                    destinationCode : $destinationCode,
-                    transferStartTime : $transferStartTime
+                    destinationCode : $destinationCode
                 });`
                 ,{
                     connectionId: transferDetails.connectionId,
                     transferId: transferDetails.transferId,
                     transferStatus : transferDetails.transferStatus,
                     sourceCode : transferDetails.sourceCode,
-                    destinationCode : transferDetails.destinationCode,
-                    transferStartTime : transferDetails.transferStartTime,
+                    destinationCode : transferDetails.destinationCode
                 }
             );
 
@@ -68,6 +66,50 @@ module.exports = {
         }catch(err){
             console.log(`[ERR] addTransfer(): ${err}`);
             return {err};
+        }
+    },
+
+    /**
+     * Set start time of the transfer
+     * @param {String} transferId - ID of the transfer
+     * @param {String} startTime - ISO string of start time
+     */
+    setStartTime: async (transferId, startTime) => {
+        try {
+            let session = driver.session();
+            await session.run(
+                "MATCH (t:Transfer {transferId: $transferId} ) " +
+                "SET t.transferStartTime = $startTime;",
+                {
+                    transferId,
+                    startTime
+                }
+            );
+            await session.close();
+        } catch (error) {
+            console.log(error);
+        }
+    },
+
+    /**
+     * Set end time of the transfer
+     * @param {String} transferId - ID of the transfer
+     * @param {String} endTime - ISO string of end time
+     */
+    setEndTime: async (transferId, endTime) => {
+        try {
+            let session = driver.session();
+            await session.run(
+                "MATCH (t:Transfer {transferId: $transferId} ) " +
+                "SET t.transferEndTime = $endTime;",
+                {
+                    transferId,
+                    endTime
+                }
+            );
+            await session.close();
+        } catch (error) {
+            console.log(error);
         }
     },
 
