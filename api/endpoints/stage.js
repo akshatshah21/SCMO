@@ -14,6 +14,7 @@ const urlencodedParser = bodyParser.urlencoded({extended:false});
  * @access Public
  */
 router.get("/",async (req,res) => {
+    console.log("REQ");
     let data = await stage.getAllStages();
     res.status(200).json(data);
 });

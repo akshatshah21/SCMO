@@ -4,9 +4,10 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import classnames from "classnames";
 import M from "materialize-css";
+import axios from "axios";
 
 import { registerUser } from "../../redux/actions/authActions";
-import axios from "axios";
+import { API_URL } from "../../config/options";
 
 function Register({ registerUser, errors, auth, history }) {
   const [input, setInput] = useState({
@@ -35,7 +36,7 @@ function Register({ registerUser, errors, auth, history }) {
 
   useEffect(() => {
     const initStages = async () => {
-      let res = await axios.get("/api/stage");
+      let res = await axios.get(API_URL + "/api/stage");
       setStages(() =>
         res.data.map((stage) => ({ name: stage.stageName, id: stage.stageId }))
       );

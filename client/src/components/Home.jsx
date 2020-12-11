@@ -24,13 +24,12 @@ export default function Home() {
             />
           </div>
           <div className="col s12 l6 offset-l1">
-            <h4 className="indigo-text text-darken-4">
-              Never lose your medical records
-            </h4>
-            <p>
-              Store your medical records on this platform, and have them with
-              you anytime, anywhere.
-            </p>
+            <h3 className="indigo-text text-darken-4">
+              Follow shipments!
+            </h3>
+            <h5>
+              Track your shipments in real time
+            </h5>
           </div>
         </div>
         <div className="row">
@@ -43,13 +42,12 @@ export default function Home() {
             />
           </div>
           <div className="col s12 l4 pull-l8 offset-l1 right-align">
-            <h4 className="indigo-text text-darken-4">
-              Heathcare at your fingertips
-            </h4>
-            <p>
-              Consult your doctors within seconds, and they can view your entire
-              medical history effortlessly.
-            </p>
+            <h3 className="indigo-text text-darken-4">
+              Manage your inventory
+            </h3>
+            <h5>
+              Effortlessly view your inventory, and manage incoming and outgoing shipments!
+            </h5>
           </div>
         </div>
         <div className="row">
@@ -57,13 +55,12 @@ export default function Home() {
             <img src="3.jpg" alt="" className="responsive-img materialboxed" />
           </div>
           <div className="col s12 l6 offset-l1">
-            <h4 className="indigo-text text-darken-4">
-              Never lose your medical records
-            </h4>
-            <p>
-              Store your medical records on this platform, and have them with
-              you anytime, anywhere.
-            </p>
+            <h3 className="indigo-text text-darken-4">
+              Dashboard for management
+            </h3>
+            <h5>
+              Visualize and optimize your supply chain!
+            </h5>
           </div>
         </div>
       </section>

@@ -12,61 +12,56 @@ export default function StorageCenter() {
   }, []);
 
   return (
-    <div className="container">
-      <div className="parallax-container">
-        <div className="parallax">
-          <img
-            src="warehouse.jpg"
-            alt="storage-center"
-            className="responsive-img"
-          />
+    <>
+      <Route exact path="/storage-center">
+        <div className="parallax-container">
+          <div className="parallax">
+            <img
+              src="warehouse.jpg"
+              alt="storage-center"
+              className="responsive-img"
+            />
+          </div>
         </div>
-      </div>
-      <div className="container">
-        <Route exact path="/storage-center">
-          <h1 className="center-align">Storage Center</h1>
-          <div className="row center-align">
-            <div className="card col s8 offset-s2">
-              <Link to="/storage-center/send">
-                <h5>Send Shipment</h5>
-              </Link>
-            </div>
-          </div>
-          <div className="row center-align">
-            <div className="card col s4 offset-s2">
-              <Link to="/storage-center/incoming">
-                <h5>Incoming Shipments</h5>
-              </Link>
-            </div>
-            <div className="card col s4">
-              <Link to="/storage-center/outgoing">
-                <h5>Outgoing Shipments</h5>
-              </Link>
-            </div>
-          </div>
-          <div className="row center-align">
-            <div className="card col s8 offset-s2">
-              <Link to="/storage-center/inventory">
-                <h5>Inventory</h5>
-              </Link>
-            </div>
-          </div>
-        </Route>
-        <Route path="/storage-center/send" component={SendShipment} />
-        <Route
-          path="/storage-center/incoming"
-          render={() => (
-            <ShipmentsList title="Incoming Shipments" type="incoming" />
-          )}
-        />
-        <Route
-          path="/storage-center/outgoing"
-          render={() => (
-            <ShipmentsList title="Outgoing Shipments" type="outgoing" />
-          )}
-        />
-        <Route path="/storage-center/inventory" component={Inventory} />
-      </div>
-    </div>
-  );
+        <h3 className="center-align">Storage Center</h3>
+        <div className="row center-align">
+          <button className="btn btn-large white">
+            <Link to="/storage-center/send">
+              <h5>Send Shipment</h5>
+            </Link>
+          </button>
+          <button className="btn btn-large white">
+            <Link to="/storage-center/incoming">
+              <h5>Incoming Shipments</h5>
+            </Link>
+          </button>
+          <button className="btn btn-large white">
+            <Link to="/storage-center/outgoing">
+              <h5>Outgoing Shipments</h5>
+            </Link>
+          </button>
+          <button className="btn btn-large white">
+            <Link to="/storage-center/inventory">
+              <h5>Inventory</h5>
+            </Link>
+          </button>
+        </div>
+        
+      </Route>
+ <Route path="/storage-center/send" component={SendShipment} />
+      <Route
+        path="/storage-center/incoming"
+        render={() => (
+          <ShipmentsList title="Incoming Shipments" type="incoming" />
+        )}
+      />
+      <Route
+        exact
+        path="/storage-center/outgoing"
+        render={() => (
+          <ShipmentsList title="Outgoing Shipments" type="outgoing" />
+        )}
+      />
+      <Route path="/storage-center/inventory" component={Inventory} />
+    </>);
 }

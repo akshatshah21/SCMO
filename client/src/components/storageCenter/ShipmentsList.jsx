@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import M from "materialize-css";
 
 import ShipmentCard from "./ShipmentCard";
+import { API_URL } from "../../config/options";
 
 function ShipmentsList({ history, title, type, auth }) {
   const [shipments, setShipments] = useState([]);
@@ -12,7 +13,7 @@ function ShipmentsList({ history, title, type, auth }) {
 
   useEffect(() => {
     const getShipments = async () => {
-      let url = `/api/transfer/${auth.user.stageId}/` + type;
+      let url = API_URL + `/api/transfer/${auth.user.stageId}/` + type;
       let res = await axios(url);
       setShipments(
         res.data.map((transfer) => ({
@@ -41,7 +42,7 @@ function ShipmentsList({ history, title, type, auth }) {
   }, [code]);
 
   const handleReceiveClick = async (id) => {
-    let res = await axios.post("/api/transfer/finish", {
+    let res = await axios.post(API_URL + "/api/transfer/finish", {
       transferId: id,
       stageId: auth.user.stageId
     });
@@ -53,7 +54,7 @@ function ShipmentsList({ history, title, type, auth }) {
   }
 
   return (
-    <div>
+    <div className="container">
       <h2 className="center-align">{title}</h2>
       <div className="row" style={{ marginTop: "1.5rem" }}>
         <nav className="nav-extended col s12 row indigo darken-4">

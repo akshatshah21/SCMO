@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const passport = require("passport");
 const http = require("http");
 const socketIo = require("socket.io");
+const cors = require("cors");
 
 const auth = require("./endpoints/auth");
 const stage = require("./endpoints/stage");
@@ -22,6 +23,8 @@ app.use(bodyParser.json());
 
 app.use(passport.initialize());
 require("./config/passport");
+
+app.use(cors());
 
 app.use("/api/auth", auth);
 app.use("/api/stage", stage);

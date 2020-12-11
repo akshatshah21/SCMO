@@ -39,11 +39,11 @@ function App({ auth, logoutUser }) {
             </li>
             {auth.isAuthenticated ? (
               <>
-                {auth.user.type === "stage" && (
+                {/* {auth.user.type === "stage" && ( */}
                   <li>
                     <Link to="/storage-center">Storage Center</Link>
                   </li>
-                )}
+                {/* )} */}
                 {/* {auth.user.type === "admin" &&  */}
                 <li>
                   <Link to="/admin">Admin</Link>

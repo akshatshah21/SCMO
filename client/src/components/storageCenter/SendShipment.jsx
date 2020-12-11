@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import M from "materialize-css";
 import { connect } from "react-redux";
+import { API_URL } from "../../config/options";
 
 function SendShipment({ history, stageId }) {
   const [stageList, setStageList] = useState([]);
@@ -14,8 +15,8 @@ function SendShipment({ history, stageId }) {
   useEffect(() => {
     const selectEffect = async () => {
       // get list of stages, products and then set state
-      let { data: stages } = await axios("/api/stage");
-      let { data: products } = await axios(`/api/stage/${stageId}/products`);
+      let { data: stages } = await axios(API_URL + "/api/stage");
+      let { data: products } = await axios(API_URL + `/api/stage/${stageId}/products`);
       setStageList(() =>
         stages.map((stage) => ({
           name: stage.stageName,
@@ -89,7 +90,7 @@ function SendShipment({ history, stageId }) {
       products
     };
     formData.timestamp = new Date().toISOString();
-    axios.post("/api/transfer/initiate", formData).then((res) => {
+    axios.post(API_URL + "/api/transfer/initiate", formData).then((res) => {
       if(res.data.sourceCode) {
         setCode(res.data.sourceCode);
       } else {

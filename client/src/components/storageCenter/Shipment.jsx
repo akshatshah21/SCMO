@@ -9,6 +9,7 @@ import {
   MAPBOX_START_ZOOM,
   MAPBOX_START_CENTER,
   SOCKETIO_URL,
+  API_URL,
 } from "../../config/options";
 
 const ENDPOINT = SOCKETIO_URL; // localhost. Change this
@@ -36,7 +37,7 @@ export default function Shipment({
     let getTransfer = async () => {
       try {
 
-        let {data: transfer} = await axios.get("/api/transfer/" + shipmentId + "/details");
+        let {data: transfer} = await axios.get(API_URL + "/api/transfer/" + shipmentId + "/details");
         // console.log(transfer);
 
         setShipmentDetails({
