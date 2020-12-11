@@ -239,6 +239,61 @@ module.exports = {
     },
 
     /**
+     * Getting all transfers around a buffer.
+     * @param {Number} lat latitude of the reference point
+     * @param {Number} lon Longitude of the reference point
+     * @param {Number} radius buffer radius
+     * @return {Array} array of all transfers in Geojson
+     */
+    getTransfersInBuffer: async (lat,lon,radius) => {
+        let client = await pool.connect();
+        try {
+            let res = await client.query(`
+                    SELECT *
+                    FROM Transfer
+                    WHERE ST_DWithin( ST_Transform(transferGeom,32643),
+                            ST_Transform(ST_SetSRID(ST_MakePoint($2,$1),4326),32643),
+                            $3
+                    );
+                `,[
+                lat,
+                lon,
+                radius
+            ]);
+            console.log(res);
+            await client.release();
+        } catch (err) {
+            console.log(`[ERR] getTransfersInBuffer(): ${err}`)
+            await client.release();
+        }
+    },
+
+    /**
+     * Getting the location limited number of closest transfers
+     * @param {Number} lat latitude of reference point
+     * @param {Number} lon lonigtude of referene point.
+     * @param {Number} limit limit to the number of transfers to be displayed.
+     * @return {Array} array of all transfers in Geojson
+     */
+    getClosestTransfers: async (lat,lon,limit) => {
+        let client = await pool.connect();
+        try {
+            let res = await client.query(`
+                SELECT *
+                FROM Stage
+                ORDER BY transferGeom <-> ST_SetSRID(ST_MakePoint($2,$1),4326)
+                LIMIT $3;
+            `,[lat,lon,limit]
+            );
+            console.log(res);
+            await client.release();
+        } catch (err) {
+            console.log(`[ERR] getClosestTransfers(): ${err}`)
+            await client.release();
+        }
+    },
+
+    /**
      * deleting a transfer by its ID.
      * @param {String} transferId Id of the stage.
      */

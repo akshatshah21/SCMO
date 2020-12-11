@@ -29,6 +29,26 @@ router.get("/allStageLocations",async (req,res) => {
 });
 
 /**
+ * @route GET api/stage/stagesInBuffer
+ * @desc Returns the location of all stages around the buffer in Geojson.
+ * @access Public
+ */
+router.get("/stagesInBuffer",async (req,res) => {
+    let data = await pgstage.getStagesInBuffer(res.latitude,res.longitude,res.radius);
+    res.status(200).json(data);
+});
+
+/**
+ * @route GET api/stage/closestStages
+ * @desc Returns the location of limited closest stages wrt a reference point in Geojson.
+ * @access Public
+ */
+router.get("/closestStages",async (req,res) => {
+    let data = await pgstage.getClosestStages(res.latitude,res.longitude,res.limit);
+    res.status(200).json(data);
+});
+
+/**
  * @route POST api/stage/create
  * @desc Creates a stage. Currently only handles stageName
  * @access Public, change to admin only later
