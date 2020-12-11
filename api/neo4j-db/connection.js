@@ -13,11 +13,21 @@ module.exports = {
             let session = driver.session();
             // await session.run("CREATE (c:Connection{ avg_cost: $avg_cost, avg_time: $avg_time, transfer_cost: $transfer_cost, distance: $distance,});");
 
-            let result = await session.run(
-                    "MATCH (s1:Stage{stageId:$stage1Id}) " +
-                    "MATCH (s2:Stage{stageId:$stage2Id}) " +
-                    "CREATE (s1)-[:PART_OF]->(c:Connection{connectionId:$connectionId})<-[:PART_OF]-(s2) " +
-                    "RETURN c;",
+            let result = await session.run(`
+                    MATCH (s1:Stage{stageId:$stage1Id})
+                    MATCH (s2:Stage{stageId:$stage2Id})
+                    CREATE (s1)-[:PART_OF]->
+                        (c:Connection{
+                            connectionId:$connectionId,
+                            transferCount : 0,
+                            avgTransferTime : 0
+                        })<-[:PART_OF]-(s2)
+                    RETURN c;
+                    `,
+                    /*
+                        attributes to add:
+                        distance
+                    */
                 {
                     stage1Id : stage1Id,
                     stage2Id : stage2Id,
@@ -31,6 +41,34 @@ module.exports = {
         }catch(err){
             console.log(`[ERR] addConnection: ${err}`);
             return {err};
+        }
+    },
+
+    /**
+     * Update the avgTransferTime of a connection
+     * @param {String} connectionId - id of the connection to be updated.
+     * @param {String} startTime - starting time of a transfer
+     * @param {String} endTime - finishing time of a transfer
+     */
+    updateConnectionData: async (connectionId,startTime,endTime) => {
+        try{
+            let session = driver.session();
+            // code to calculate timeTaken.
+            let minutes =  (endTime - startTime)/(60*1000);
+            let result = await session.run(`
+                    MATCH (c:Connection{connectionId : $connectionId})
+                    SET c.transferCount = c.transferCount+1
+                    SET avgTransferTime = 
+                        (c.avgTransferTime*(c.transferCount-1) + $timeTaken)/(c.transferCount)
+                    ;
+                `,{
+                    connectionId : connectionId,
+                    timeTaken : timeTaken
+                }
+            );
+            await session.close();
+        }catch(err){
+            console.log(`[ERR] updateAvgTransferTime(): ${err}`);
         }
     },
 
