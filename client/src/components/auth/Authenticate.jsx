@@ -7,8 +7,8 @@ export default function Authenticate() {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <>
-      <div className="row" style={{ marginTop: "1.5rem" }}>
+    <div className="container row">
+      <div className="row" style={{ marginTop: "1.5rem", marginBottom: 0 }}>
         <nav className="nav-extended col s6 offset-s3 row indigo darken-4">
           <div className="nav-content">
             <div className="row tabs tabs-transparent">
@@ -36,6 +36,6 @@ export default function Authenticate() {
         <Route path="/auth/register" component={Register} />
         <Route path="/auth/login" component={Login} />
       </div>
-    </>
+    </div>
   );
 }

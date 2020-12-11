@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import jwt_decode from "jwt-decode";
 
+import Home from "./components/Home";
 import StorageCenter from "./components/storageCenter/StorageCenter";
 import Shipment from "./components/storageCenter/Shipment";
 import store from "./redux/store";
@@ -29,66 +30,65 @@ if (localStorage.jwt) {
 
 function App({ auth, logoutUser }) {
   return (
-    
-      <BrowserRouter>
-        <div>
-          <nav className="indigo darken-4">
-            <ul>
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              {auth.isAuthenticated ?
+    <BrowserRouter>
+      <div>
+        <nav className="indigo darken-4">
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            {auth.isAuthenticated ? (
               <>
-                {/* {auth.user.type === "stage" &&   */}
+                {auth.user.type === "stage" && (
                   <li>
                     <Link to="/storage-center">Storage Center</Link>
                   </li>
-                {/* } */}
+                )}
                 {/* {auth.user.type === "admin" &&  */}
-                   <li>
-                    <Link to="/admin">Admin</Link>
-                  </li>
-                {/* } */}
-               
                 <li>
-                  <a href="/" onClick={(e) => {
-                    console.log("Logout click")
-                    e.preventDefault();
-                    logoutUser();
-                  }}>Logout</a>
+                  <Link to="/admin">Admin</Link>
+                </li>
+                {/* } */}
+
+                <li>
+                  <a
+                    href="/"
+                    onClick={(e) => {
+                      console.log("Logout click");
+                      e.preventDefault();
+                      logoutUser();
+                    }}
+                  >
+                    Logout
+                  </a>
                 </li>
               </>
-               :
+            ) : (
               <li>
                 <Link to="/auth/login">Authenticate</Link>
               </li>
-              }
-            </ul>
-          </nav>
+            )}
+          </ul>
+        </nav>
+        <Switch>
           <PrivateRoute exact path="/shipment" component={Shipment} />
-          <div className="container">
-            {/* <Route path="/" component={Home}  /> */}
-            <Route path="/auth" component={Authenticate} />
-            <PrivateRoute
-              path="/storage-center"
-              component={StorageCenter}
-            />
-            <PrivateRoute
-              path="/admin"
-              component={Admin}
-            />
-          </div>
-        </div>
-      </BrowserRouter>
+
+          <Route exact path="/" component={Home} />
+          <Route path="/auth" component={Authenticate} />
+          <PrivateRoute path="/storage-center" component={StorageCenter} />
+          <PrivateRoute path="/admin" component={Admin} />
+        </Switch>
+      </div>
+    </BrowserRouter>
   );
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth
+  auth: state.auth,
 });
 
 App.propTypes = {
-  auth: PropTypes.object.isRequired
-}
+  auth: PropTypes.object.isRequired,
+};
 
 export default connect(mapStateToProps, { logoutUser })(App);

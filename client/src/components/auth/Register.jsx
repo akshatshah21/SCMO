@@ -14,7 +14,7 @@ function Register({ registerUser, errors, auth, history }) {
     password: "",
     password2: "",
     type: "",
-    stageId: ""
+    stageId: "",
   });
   const [stages, setStages] = useState([]);
 
@@ -46,20 +46,20 @@ function Register({ registerUser, errors, auth, history }) {
   }, [input.type]);
 
   return (
-    <div className="col s6 offset-s3">
-      <h2 className="center-align">Register</h2>
+    <div className="card col s6 offset-s3" style={{ marginTop: 0 }}>
+      <h3 className="center-align">Register</h3>
       <form noValidate autoComplete="off">
         <div className="row">
           <div className="input-field col s12">
-            <select 
-              name="type" 
+            <select
+              name="type"
               onChange={handleChange}
               error={errors && errors.type}
               className={classnames({
                 invalid: errors.type,
               })}
               defaultValue=""
-              >
+            >
               <option value="" disabled>
                 Choose account type
               </option>
@@ -95,7 +95,7 @@ function Register({ registerUser, errors, auth, history }) {
                 ))}
               </select>
               <label>Storage Center</label>
-            <span className="red-text">{errors.stageId}</span>
+              <span className="red-text">{errors.stageId}</span>
             </div>
           </div>
         )}

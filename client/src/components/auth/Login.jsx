@@ -34,8 +34,8 @@ function Login({ loginUser, errors, auth, history }) {
     loginUser(userData);
   };
   return (
-    <div className="col s6 offset-s3">
-      <h2 className="center-align">Login</h2>
+    <div className="card col s6 offset-s3" style={{ marginTop: 0 }}>
+      <h3 className="center-align">Login</h3>
       <form noValidate>
         <div className="row">
           <div className="input-field col s12">
