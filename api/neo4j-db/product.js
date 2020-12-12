@@ -105,6 +105,39 @@ module.exports = {
     },
 
     /**
+     * Most transfered product via a connection
+     * @param {String} connectionId the id of the connection to be queried.
+     * @return {Object} the most transferred product
+     */
+    getMostTransferredProducts: async (connectionId) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(`
+                    MATCH (:Connection{connectionId : $connectionId})-[of:OF]->(:Product)
+                    WITH MAX(of.totalQuantity) AS maxi
+                    MATCH (:Connection{connectionId : $connectionId})-[f:OF]->(p:Product)
+                    WHERE f.totalQuantity = maxi
+                    RETURN p;
+                `,{
+                    connectionId : connectionId
+                }
+            );
+            let prods = [];
+            if(result.records.length>0){
+                result.records.forEach((temp) => {
+                    let data = temp.get('p').properties;
+                    prods.push(data);
+                })
+            }
+            console.log(prods);
+            await session.close();
+            return prods;
+        }catch(err){
+            console.log(`[ERR] getMostTransferredProducts: ${err}`);
+        }
+    },
+
+    /**
      * Remove a product based on its id
      * @param {Number} id - The id of the product
      */

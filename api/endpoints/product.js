@@ -18,6 +18,16 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * @route GET api/product/mostTransferredProducts
+ * @desc Returns a list of all Products that have delivered the most via a connections.
+ * @access Public
+ */
+router.get("/mostTransferredProducts", async (req, res) => {
+  let data = await product.getMostTransferredProducts(res.body.connectionId);
+  res.status(200).json(data);
+});
+
+/**
  * @route POST api/product/create
  * @desc Creates a new product
  * @access Public for now, change to protected

@@ -66,7 +66,7 @@ router.get('/:transferId/details', async (req,res) => {
  * @access Public
  */
 router.get("/transfersInBuffer",async (req,res) => {
-    let data = await pgstage.getTransfersInBuffer(res.latitude,res.longitude,res.radius);
+    let data = await pgstage.getTransfersInBuffer(res.body.latitude,res.body.longitude,res.body.radius);
     res.status(200).json(data);
 });
 
@@ -76,7 +76,7 @@ router.get("/transfersInBuffer",async (req,res) => {
  * @access Public
  */
 router.get("/closestTransfers",async (req,res) => {
-    let data = await pgstage.getClosestTransfers(res.latitude,res.longitude,res.limit);
+    let data = await pgstage.getClosestTransfers(res.body.latitude,res.body.longitude,res.body.limit);
     res.status(200).json(data);
 });
 
