@@ -8,6 +8,7 @@ import {
   MAPBOX_STYLESHEET_LOCATION,
   MAPBOX_START_ZOOM,
   MAPBOX_START_CENTER,
+  API_URL,
 } from "../../config/options";
 
 var map;
@@ -17,7 +18,7 @@ export default function Admin() {
   useEffect(() => {
     const getStages = async () => {
       try {
-        let {data: stages} = await axios.get("/api/stage/allStageLocations");
+        let {data: stages} = await axios.get(API_URL + "/api/stage/allStageLocations");
         console.log(stages);
         mapboxgl.accessToken = MAPBOX_API_TOKEN;
         map = new mapboxgl.Map({
@@ -37,7 +38,6 @@ export default function Admin() {
             });
             map.addLayer({
               'id': 'points',
-              'type': 'symbol',
               'source': 'stages',
               'type': 'circle',
               'paint': {

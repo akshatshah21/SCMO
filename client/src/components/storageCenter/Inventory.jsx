@@ -2,13 +2,15 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import {connect} from "react-redux";
 
+import { API_URL } from "../../config/options";
+
 function Inventory({stageId}) {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const getProducts = async () => {
       // Get all products for this stage
-      let res = await axios.get(`/api/stage/${stageId}/products`); // something like this, also specify stage id
+      let res = await axios.get(API_URL + `/api/stage/${stageId}/products`); // something like this, also specify stage id
       setProducts(
         res.data.map((product) => ({
           id: product.productId,
