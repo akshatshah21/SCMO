@@ -8,6 +8,7 @@ const auth = require("./endpoints/auth");
 const stage = require("./endpoints/stage");
 const product = require("./endpoints/product");
 const transfer = require("./endpoints/transfer");
+const connection = require("./endpoints/connection");
 
 const pgtransfer = require("./postgis-db/transfer");
 
@@ -27,6 +28,7 @@ app.use("/api/auth", auth);
 app.use("/api/stage", stage);
 app.use("/api/transfer", transfer);
 app.use("/api/product", product);
+//app.use("/api/connection", connection);
 
 app.get("/", (req, res) => res.send("Hello World"));
 

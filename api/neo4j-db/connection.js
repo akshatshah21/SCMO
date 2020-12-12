@@ -171,30 +171,38 @@ module.exports = {
         }catch(err){
             console.log(`[ERR] getConnectionBetweenStages: ${err}`);
         }
-    }
+    },
 
     /**
-     * Most transfered product via a connection
-     * @param {String} connectionId the id of the connection to be queried.
-     * @return {Object} the most transferred product
-    getMostTransferredProduct: async (connectionId) => {
+     * get the connection where the product is in most demand.
+     * @param {String} productId the id of the product whose demand is to be analyzed. 
+     * @return {Object} the Connection Node
+     */
+    getMostDemandingConnections: async (productId) => {
         try{
             let session = driver.session();
             let result = await session.run(`
+                    MATCH (:Connection)-[of:OF]->(:Product{productId : $productId})
+                    WITH MAX(of.totalQuantity) AS maxi
+                    MATCH (c:Connection)-[f:OF]->(:Product{productId : $productId})
+                    WHERE f.totalQuantity = maxi
+                    RETURN c;
                 `,{
-                    connectionId : connectionId
+                    productId : productId
                 }
             );
-            let connection;
+            let conns = [];
             if(result.records.length>0){
-                connection = result.records[0].get('c').properties;
-            }else{
+                result.records.forEach((temp) => {
+                    let data = temp.get('c').properties;
+                    conns.push(data);
+                })
             }
+            console.log(conns);
             await session.close();
-            return { connection };
+            return conns;
         }catch(err){
-            console.log(`[ERR] getConnectionBetweenStages: ${err}`);
+            console.log(`[ERR] getMostDemandingConnections: ${err}`);
         }
     },
-     */
 };

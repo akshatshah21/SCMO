@@ -60,6 +60,26 @@ router.get('/:transferId/details', async (req,res) => {
 
 });
 
+/**
+ * @route GET api/transfer/transfersInBuffer
+ * @desc Returns the location of all transfers around the buffer in Geojson.
+ * @access Public
+ */
+router.get("/transfersInBuffer",async (req,res) => {
+    let data = await pgstage.getTransfersInBuffer(res.body.latitude,res.body.longitude,res.body.radius);
+    res.status(200).json(data);
+});
+
+/**
+ * @route GET api/transfer/closestTransfers
+ * @desc Returns the location of limited closest transfers wrt a reference point in Geojson.
+ * @access Public
+ */
+router.get("/closestTransfers",async (req,res) => {
+    let data = await pgstage.getClosestTransfers(res.body.latitude,res.body.longitude,res.body.limit);
+    res.status(200).json(data);
+});
+
 /*
     function to create a transfer node object and send a code.
 */
