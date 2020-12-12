@@ -195,8 +195,14 @@ router.post('/verifySourceCode', async (req,res) => {
         // since the code checks out we need to change its status to ongoing
         let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
         await transfer.setStartTime(trans.transferId);
-
-        res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
+        const destinationLocation = (await pgstage.getStageById(result.transfer.destinationId)).features[0].geometry.coordinates;
+        res.status(200).json({
+            transferFound: true,
+            transferId: trans.transferId, 
+            destinationId: result.transfer.destinationId,
+            destinationLatitude: destinationLocation[1],
+            destinationLongitude: destinationLocation[0] 
+        });
     } else {
         res.status(400).json({transferFound:false});
     }
