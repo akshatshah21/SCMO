@@ -13,11 +13,21 @@ module.exports = {
             let session = driver.session();
             // await session.run("CREATE (c:Connection{ avg_cost: $avg_cost, avg_time: $avg_time, transfer_cost: $transfer_cost, distance: $distance,});");
 
-            let result = await session.run(
-                    "MATCH (s1:Stage{stageId:$stage1Id}) " +
-                    "MATCH (s2:Stage{stageId:$stage2Id}) " +
-                    "CREATE (s1)-[:PART_OF]->(c:Connection{connectionId:$connectionId})<-[:PART_OF]-(s2) " +
-                    "RETURN c;",
+            let result = await session.run(`
+                    MATCH (s1:Stage{stageId:$stage1Id})
+                    MATCH (s2:Stage{stageId:$stage2Id})
+                    CREATE (s1)-[:PART_OF]->
+                        (c:Connection{
+                            connectionId:$connectionId,
+                            transferCount : 0,
+                            avgTransferTime : 0
+                        })<-[:PART_OF]-(s2)
+                    RETURN c;
+                    `,
+                    /*
+                        attributes to add:
+                        distance
+                    */
                 {
                     stage1Id : stage1Id,
                     stage2Id : stage2Id,
@@ -35,8 +45,51 @@ module.exports = {
     },
 
     /**
+     * Update the avgTransferTime of a connection
+     * @param {String} connectionId - id of the connection to be updated.
+     * @param {String} transferId - id of the transfer
+     * @param {String} startTime - starting time of the transfer
+     * @param {String} endTime - finishing time of the transfer
+     */
+    updateConnectionData: async (connectionId,transferId,startTime,endTime) => {
+        try{
+            console.log(connectionId);
+            let session = driver.session();
+
+            //updating the value of transfercount and avgTransferTime in the connection node.
+            await session.run(`
+                    MATCH (c:Connection{connectionId : $connectionId})
+                    SET c.avgTransferTime = 
+                        (c.avgTransferTime*c.transferCount + duration.between($startTime,$endTime).minutes)/(c.transferCount+1)
+                    SET c.transferCount = c.transferCount+1
+                    ;
+                `,{
+                    connectionId : connectionId,
+                    startTime : startTime,
+                    endTime : endTime
+                }
+            );
+            console.log("updating quantity of products");
+            //updating the quatity of products delivered via a particular connection.
+            await session.run(`
+                MATCH (c:Connection{connectionId:$connectionId})<-[:BELONGS_TO]-(t:Transfer{transferId:$transferId})-[ipo:IS_PART_OF]->(p:Product)
+                MATCH (c)-[of:OF]->(p)
+                SET of.totalQuantity = of.totalQuantity + ipo.quantity
+                SET of.timesDelivered = of.timesDelivered + 1;
+            `,{
+                connectionId : connectionId,
+                transferId : transferId
+            });
+
+            await session.close();
+        }catch(err){
+            console.log(`[ERR] updateConnectionData(): ${err}`);
+        }
+    },
+
+    /**
      * Get all connections of a stage
-     * @param {Number} stageId - The id of the stage
+     * @param {String} stageId - The id of the stage
      * @return {Array} Array of Connection Node objects
      */
     getConnectionsOfStage: async (stageId) => {
@@ -60,6 +113,33 @@ module.exports = {
             return connections;
         }catch(err){
             console.log(`[ERR] getConnectionsofStage(): ${err}`);
+        }
+    },
+
+    /**
+     * Get connection belonging to a transfer
+     * @param {String} transferId - The id of the transfer
+     * @return {Object} ConnectionNode object.
+     */
+    getConnectionOfTransfer: async (transferId) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(`
+                    MATCH (t:Transfer{transferId:$transferId})-[:BELONGS_TO]->(c:Connection)
+                    RETURN c;
+                `,{
+                    transferId
+                }
+            );
+            let conn;
+            if(result.records.length>0){
+                conn = result.records[0].get('c').properties;
+                console.log(conn)
+            }
+            await session.close();
+            return conn;
+        }catch(err){
+            console.log(`[ERR] getConnectionofTransfer(): ${err}`);
         }
     },
 
@@ -91,5 +171,30 @@ module.exports = {
         }catch(err){
             console.log(`[ERR] getConnectionBetweenStages: ${err}`);
         }
+    }
+
+    /**
+     * Most transfered product via a connection
+     * @param {String} connectionId the id of the connection to be queried.
+     * @return {Object} the most transferred product
+    getMostTransferredProduct: async (connectionId) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(`
+                `,{
+                    connectionId : connectionId
+                }
+            );
+            let connection;
+            if(result.records.length>0){
+                connection = result.records[0].get('c').properties;
+            }else{
+            }
+            await session.close();
+            return { connection };
+        }catch(err){
+            console.log(`[ERR] getConnectionBetweenStages: ${err}`);
+        }
     },
+     */
 };
