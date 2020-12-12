@@ -25,6 +25,7 @@ module.exports = {
                 }
             );
 
+            //creating the source relationship.
             await session.run(
                 "MATCH (s:Stage{stageId:$sourceId}) "+
                 "MATCH (t:Transfer{transferId:$transferId}) "+
@@ -35,6 +36,7 @@ module.exports = {
                 }
             );
 
+            //creating the destination relationship.
             await session.run(
                 "MATCH (s:Stage{stageId:$destinationId}) "+
                 "MATCH (t:Transfer{transferId:$transferId}) "+
@@ -47,17 +49,21 @@ module.exports = {
 
             await session.close();
 
+            //updating the IS_PART_OF and OF relationships
             let products = transferDetails.products;
             products.forEach(async (product) => {
                 let sess = driver.session();
-                await sess.run(
-                    "MATCH (p:Product{productId:$productId}) "+
-                    "MATCH (t:Transfer{transferId:$transferId}) "+
-                    "CREATE (p)<-[ipo:IS_PART_OF{quantity:$quantity}]-(t);"
-                    ,{
+                await sess.run(`
+                        MATCH (p:Product{productId:$productId})
+                        MATCH (t:Transfer{transferId:$transferId})
+                        MATCH (c:Connection{connectionId:$connectionId})
+                        CREATE (p)<-[ipo:IS_PART_OF{quantity:$quantity}]-(t)
+                        MERGE (p)<-[:OF{totalQuantity:0,timesDelivered:0}]-(c);
+                    `,{
                         productId : product.productId,
                         quantity : product.quantity,
-                        transferId : transferDetails.transferId
+                        transferId : transferDetails.transferId,
+                        connectionId : transferDetails.connectionId
                     }
                 );
                 await sess.close();
@@ -72,17 +78,15 @@ module.exports = {
     /**
      * Set start time of the transfer
      * @param {String} transferId - ID of the transfer
-     * @param {String} startTime - ISO string of start time
      */
-    setStartTime: async (transferId, startTime) => {
+    setStartTime: async (transferId) => {
         try {
             let session = driver.session();
             await session.run(
                 "MATCH (t:Transfer {transferId: $transferId} ) " +
-                "SET t.transferStartTime = $startTime;",
+                "SET t.transferStartTime = localdatetime()",
                 {
-                    transferId,
-                    startTime
+                    transferId
                 }
             );
             await session.close();
@@ -94,17 +98,15 @@ module.exports = {
     /**
      * Set end time of the transfer
      * @param {String} transferId - ID of the transfer
-     * @param {String} endTime - ISO string of end time
      */
-    setEndTime: async (transferId, endTime) => {
+    setEndTime: async (transferId) => {
         try {
             let session = driver.session();
-            await session.run(
-                "MATCH (t:Transfer {transferId: $transferId} ) " +
-                "SET t.transferEndTime = $endTime;",
-                {
-                    transferId,
-                    endTime
+            await session.run(`
+                    MATCH (t:Transfer {transferId: $transferId} )
+                    SET t.transferEndTime = localdatetime();
+                `,{
+                    transferId
                 }
             );
             await session.close();

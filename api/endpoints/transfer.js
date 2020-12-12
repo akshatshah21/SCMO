@@ -146,7 +146,7 @@ router.post('/finish',async(req,res) => {
     code.destinationCode = nanoid();
     trans.destinationCode = code.destinationCode;
 
-    //updating the destinationCode and transferEndTime of the transfer in Neo4j.
+    //updating the destinationCode of the transfer in Neo4j.
     try{
         let session = driver.session();
         await session.run(
@@ -174,7 +174,7 @@ router.post('/verifySourceCode', async (req,res) => {
 
         // since the code checks out we need to change its status to ongoing
         let trans = await transfer.changeTransferStatus(result.transfer.transferId,TRANSFER_STATUS.ONGOING);
-        await transfer.setStartTime(trans.transferId, (new Date()).toLocaleString());
+        await transfer.setStartTime(trans.transferId);
 
         res.status(200).json({transferId : trans.transferId, destinationId : result.transfer.destinationId, transferFound : true});
     } else {
@@ -194,10 +194,17 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         found = found.transfer;
         // since the code checks out we need to change its status to completed
         let trans = await transfer.changeTransferStatus(found.transferId,TRANSFER_STATUS.COMPLETED);
+        // setting the endTime of the transfer.
         await transfer.setEndTime(trans.transferId, (new Date()).toISOString());
+        console.log(req.body);
+
+        //getting the connectionNode belonging to the transfer.
+        let conn = await connection.getConnectionOfTransfer(trans.transferId);
+        // updating data stored in the connection node.
+        await connection.updateConnectionData(conn.connectionId, trans.transferId,trans.transferStartTime,trans.transferEndTime);
+
         //getting all the products in the transfer.
         let prods = await transfer.getAllProducts(transferId);
-        
         //updating the quantity of products on the receiver's end.
         prods.forEach((prod) => {
             stage.updateQuantity(destinationId,prod.productId,prod.quantity);
