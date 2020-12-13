@@ -288,6 +288,7 @@ module.exports = {
                 ,{
                     stageId: stageId
             });
+            console.log("query ran");
 
             let transfers = [];
             if(result.records.length>0){
