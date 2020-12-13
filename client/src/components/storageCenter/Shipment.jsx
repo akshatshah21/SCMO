@@ -37,7 +37,7 @@ export default function Shipment({
         let { data: transfer } = await axios.get(
           API_URL + "/api/transfer/" + shipmentId + "/details"
         );
-        console.log(transfer);
+        // console.log(transfer);
 
         transfer.transferStartTime = `${transfer.transferStartTime.day}/${transfer.transferStartTime.month}/${transfer.transferStartTime.year} ${transfer.transferStartTime.hour}:${transfer.transferStartTime.minute}`;
         if (transfer.transferEndTime) {
@@ -135,7 +135,7 @@ export default function Shipment({
         let res = await axios.get(
           `https://api.mapbox.com/directions/v5/mapbox/driving/${shipmentDetails.sourceLocation[0]},${shipmentDetails.sourceLocation[1]};${shipmentDetails.destinationLocation[0]},${shipmentDetails.destinationLocation[1]}?geometries=geojson&access_token=${MAPBOX_API_TOKEN}`
         );
-        console.log(res.data);
+        // console.log(res.data);
         let route = res.data.routes[0].geometry.coordinates;
         let geojson = {
           type: "Feature",
@@ -146,15 +146,7 @@ export default function Shipment({
           },
         };
 
-        // Problematic part
-        // Route is not loaded the first time, page needs to be refreshed!
-        map.on("style.load", () => {
-          // console.log("On load");
-          addRouteToMap(geojson);
-        });
-
         map.on("styledata", () => {
-          // console.log("Style");
           addRouteToMap(geojson);
         });
       };
@@ -170,7 +162,7 @@ export default function Shipment({
         socket.emit("map-client", { transferId: shipmentId });
       });
       socket.on("location-update", (msg) => {
-        console.log(msg);
+        // console.log(msg);
         if (msg) {
           setShipmentLocation(msg);
         }

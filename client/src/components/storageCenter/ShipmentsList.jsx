@@ -8,26 +8,32 @@ import { API_URL } from "../../config/options";
 
 function ShipmentsList({ history, title, type, auth }) {
   const [shipments, setShipments] = useState([]);
-  const [pending, setPending] = useState(true);
+  const [ongoing, setOngoing] = useState(true);
   const [code, setCode] = useState("");
 
   useEffect(() => {
     const getShipments = async () => {
       let url = API_URL + `/api/transfer/${auth.user.stageId}/` + type;
       let res = await axios(url);
+      console.log(res.data);
+      let shipments;
+      if(type === "incoming") {
+        // not using res.data.pending shipments for now
+        shipments = [...res.data.ongoing, ...res.data.completed];
+        console.log(shipments);
+      } else {
+        shipments = res.data;
+      }
       setShipments(
-        res.data.map((transfer) => ({
+        shipments.map((transfer) => ({
           id: transfer.transferId,
           status: transfer.transferStatus,
-          name:
-            type === "incoming"
-              ? transfer.sourceName
-              : transfer.destinationName,
+          name: (transfer.sourceName === auth.user.stage.stageName ? transfer.destinationName : transfer.sourceName)
         }))
       );
     };
     getShipments();
-  }, [pending, type, auth]);
+  }, [ongoing, type, auth]);
 
   useEffect(() => {
     var elems = document.querySelectorAll(".modal");
@@ -35,7 +41,7 @@ function ShipmentsList({ history, title, type, auth }) {
       onCloseEnd: () => {
         // display done and redirect to storage center
         M.toast({ html: "Shipment received" });
-        setPending(false);
+        setOngoing(false);
       },
     });
     if (instance) instance.open();
@@ -56,21 +62,21 @@ function ShipmentsList({ history, title, type, auth }) {
   return (
     <div className="container">
       <h2 className="center-align">{title}</h2>
-      {pending && <h5 className="center-align">Sorted by distance</h5>}
+      {ongoing && <h5 className="center-align">Sorted by distance</h5>}
       <div className="row" style={{ marginTop: "1.5rem" }}>
         <nav className="nav-extended col s12 row indigo darken-4">
           <ul className="row tabs tabs-transparent">
             <li
               className="col s6 tab waves-effect waves-light"
-              onClick={() => setPending(true)}
-              style={{ borderBottom: pending ? "white 2px solid" : "none" }}
+              onClick={() => setOngoing(true)}
+              style={{ borderBottom: ongoing ? "white 2px solid" : "none" }}
             >
-              <span>Pending</span>
+              <span>Ongoing</span>
             </li>
             <li
               className="col s6 tab waves-effect waves-light"
-              onClick={() => setPending(false)}
-              style={{ borderBottom: pending ? "none" : "white 2px solid" }}
+              onClick={() => setOngoing(false)}
+              style={{ borderBottom: ongoing ? "none" : "white 2px solid" }}
             >
               <span>Completed</span>
             </li>
@@ -79,7 +85,7 @@ function ShipmentsList({ history, title, type, auth }) {
       </div>
       {shipments
         .filter(
-          (shipment) => shipment.status === (pending ? "ongoing" : "completed")
+          (shipment) => shipment.status === (ongoing ? "ongoing" : "completed")
         )
         .map((shipment) => (
           <ShipmentCard key={shipment.id} shipment={shipment} type={type} receiveClick={handleReceiveClick} />
