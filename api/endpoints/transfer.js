@@ -264,8 +264,10 @@ router.get("/:stageId/incoming", async (req, res) => {
     };
     let trans = await transfer.getTransfersOfDestination(req.params.stageId);
     let stg = await pgstage.getStageById(req.params.stageId);
-    //console.log(stg);
+    //getting all the list of closest transfers in data.
     let data = await pgtransfer.getClosestTransfers(stg.features[0].stagelat,stg.features[0].stagelon,1000000);
+
+    //filtering out all pending and completed transfers from trans and adding them to result
     for(i=0;i<trans.length;i++){
         if(trans[i].transferStatus===TRANSFER_STATUS.COMPLETED){
             result.completed.push(trans[i]);
@@ -273,7 +275,8 @@ router.get("/:stageId/incoming", async (req, res) => {
             result.pending.push(trans[i]);
         }
     }
-    console.log(data.rows);
+
+    //filtering out ongoing transfers from data and adding them to result
     for(i=0; i<data.rows.length; i++){
         let temp = data.rows[i];
         let ans = await transfer.getTransferById(temp.transferid);

@@ -21,6 +21,21 @@ router.get("/",async (req,res) => {
 });
 
 /**
+ * @route GET api/stage/stagesHavingMostQuantity
+ * @desc return all stages having most quantity of a product
+ * @access Public for now, change to protected later
+ */
+router.get("/stagesHavingMostQuantity", async (req, res) => {
+    let productId = req.body.productId;
+    let result = await stage.getStagesHavingMostQuantity(productId);
+    if(result.err) {
+        res.status(500).json( {error: result.err.message} );
+    } else {
+        res.status(200).json(result);
+    }
+})
+
+/**
  * @route GET api/stage/allStageLocations
  * @desc Returns the location of all stages in Geojson.
  * @access Public
