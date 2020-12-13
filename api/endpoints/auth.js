@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { validateLogin, validateRegistration } = require("../validation/auth");
 const { SECRET_OR_KEY } = require("../config/keys");
 const { addUser, getUserByUsername } = require("../neo4j-db/user");
+const util = require("../util");
 
 /**
  * @route POST api/auth/register
@@ -59,8 +60,8 @@ router.post("/login", async (req, res) => {
       type: user.type,
     };
     if(payload.type === "stage") {
-      stageId: user.stageId
-      payload.stage = await getStage(user.stageId);
+      payload.stageId = user.stageId;
+      payload.stage = await util.getStageDetailsById(user.stageId);
     }
     // Sign token
     jwt.sign(payload, SECRET_OR_KEY, { expiresIn: 31556926 }, (err, token) => {

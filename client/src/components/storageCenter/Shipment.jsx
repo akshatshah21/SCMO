@@ -30,13 +30,13 @@ export default function Shipment({
     longitude: 0,
   });
   const [shipmentMarker, setShipmentMarker] = useState();
-  const [sourceMarker, setSourceMarker] = useState();
-  const [destinationMarker, setDestinationMarker] = useState();
 
   useEffect(() => {
     let getTransfer = async () => {
       try {
-        let {data: transfer} = await axios.get(API_URL + "/api/transfer/" + shipmentId + "/details");
+        let { data: transfer } = await axios.get(
+          API_URL + "/api/transfer/" + shipmentId + "/details"
+        );
         console.log(transfer);
 
         transfer.transferStartTime = `${transfer.transferStartTime.day}/${transfer.transferStartTime.month}/${transfer.transferStartTime.year} ${transfer.transferStartTime.hour}:${transfer.transferStartTime.minute}`;
@@ -109,8 +109,8 @@ export default function Shipment({
     });
     // console.log(shipmentDetails);
 
-    let srcEl = document.createElement('div');
-    
+    let srcEl = document.createElement("div");
+
     srcEl.style.display = "block:";
     srcEl.style.border = "none";
     srcEl.style.padding = 0;
@@ -120,20 +120,16 @@ export default function Shipment({
     srcEl.style.backgroundSize = "contain";
     let destEl = srcEl.cloneNode(true);
 
-    setSourceMarker(
-      new Marker(srcEl)
-        .setLngLat(shipmentDetails.sourceLocation || [0, 0])
-        .setPopup(new Popup({ offset: 25 }).setText(shipmentDetails.sourceName))
-        .addTo(map)
-    );
-    setDestinationMarker(
-      new Marker(destEl)
-        .setLngLat(shipmentDetails.destinationLocation || [0, 0])
-        .setPopup(
-          new Popup({ offset: 25 }).setText(shipmentDetails.destinationName)
-        )
-        .addTo(map)
-    );
+    new Marker(srcEl)
+      .setLngLat(shipmentDetails.sourceLocation || [0, 0])
+      .setPopup(new Popup({ offset: 25 }).setText(shipmentDetails.sourceName))
+      .addTo(map);
+    new Marker(destEl)
+      .setLngLat(shipmentDetails.destinationLocation || [0, 0])
+      .setPopup(
+        new Popup({ offset: 25 }).setText(shipmentDetails.destinationName)
+      )
+      .addTo(map);
     if (shipmentDetails.sourceLocation) {
       let renderRoute = async () => {
         let res = await axios.get(
@@ -185,16 +181,15 @@ export default function Shipment({
 
   useEffect(() => {
     if (shipmentDetails.status === "ongoing") {
+      let el = document.createElement("div");
 
-      let el = document.createElement('div');
-    
-    el.style.display = "block:";
-    el.style.border = "none";
-    el.style.padding = 0;
-    el.style.background = "url(truck.webp)";
-    el.style.width = "50px";
-    el.style.height = "50px";
-    el.style.backgroundSize = "contain";
+      el.style.display = "block:";
+      el.style.border = "none";
+      el.style.padding = 0;
+      el.style.background = "url(truck.webp)";
+      el.style.width = "50px";
+      el.style.height = "50px";
+      el.style.backgroundSize = "contain";
 
       setShipmentMarker((prevMarker) => {
         if (prevMarker) prevMarker.remove();

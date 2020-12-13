@@ -1,9 +1,16 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import M from "materialize-css";
-import { connect } from "socket.io-client";
+import { connect } from "react-redux";
+import mapboxgl, {Marker, Popup} from "mapbox-gl";
 
-import { API_URL } from "../../config/options";
+import {
+  MAPBOX_STYLESHEET_LOCATION,
+  MAPBOX_START_ZOOM,
+  MAPBOX_START_CENTER,
+  API_URL,
+} from "../../config/options";
+import { MAPBOX_API_TOKEN } from "../../config/keys";
 
 var map;
 
@@ -33,6 +40,8 @@ function StagesMap({ user }) {
             limit: numStages + 1,
           }
         );
+        console.log("RES1");
+        console.log(stageList);
         setStages(stageList);
       } catch (error) {
         console.log(error);
@@ -40,7 +49,7 @@ function StagesMap({ user }) {
       }
     };
     getClosestStages();
-  }, [numStages]);
+  }, [numStages, user.stage.stageLat, user.stage.stageLon]);
 
   useEffect(() => {
     let getStagesInBuffer = async () => {
@@ -53,6 +62,8 @@ function StagesMap({ user }) {
             radius: buffer,
           }
         );
+        console.log("RES2");
+        console.log(stageList);
         setStages(stageList);
       } catch (error) {
         console.log(error);
@@ -70,11 +81,11 @@ function StagesMap({ user }) {
       center: MAPBOX_START_CENTER, // starting position [lng, lat]
       zoom: MAPBOX_START_ZOOM, // starting zoom
     });
-
-    map.getSource();
   }, []);
 
   useEffect(() => {
+    console.log("IN map layer effect, stages");;
+    console.log(typeof stages);
     let geoJsonData = {
       type: "FeatureCollection",
       features: stages.map((stage) => ({
@@ -154,7 +165,7 @@ function StagesMap({ user }) {
               onChange={handleNumChange}
             />
             <label htmlFor="num-stages">Number of closest stages</label>
-            <span className="helper-text" dataError="wrong" dataSuccess="right">
+            <span className="helper-text" dataerror="wrong" datasuccess="right">
               For example, enter 3 to see the 3 closest stages
             </span>
           </div>
@@ -169,7 +180,7 @@ function StagesMap({ user }) {
               onChange={handleBufferChange}
             />
             <label htmlFor="buffer">Buffer</label>
-            <span className="helper-text" dataError="wrong" dataSuccess="right">
+            <span className="helper-text" dataerror="wrong" datasuccess="right">
               For example, enter 3 to see the stages within 3km
             </span>
           </div>
@@ -181,7 +192,7 @@ function StagesMap({ user }) {
 }
 
 const mapStateToProps = (state) => ({
-  auth: state.auth,
+  user: state.auth.user,
 });
 
 export default connect(mapStateToProps, null)(StagesMap);

@@ -18,7 +18,7 @@ function SendShipment({ history, stageId }) {
       let { data: stages } = await axios(API_URL + "/api/stage");
       let { data: products } = await axios(API_URL + `/api/stage/${stageId}/products`);
       setStageList(() =>
-        stages.map((stage) => ({
+        stages.filter(stage => stage.stageId !== stageId).map((stage) => ({
           name: stage.stageName,
           id: stage.stageId,
         }))

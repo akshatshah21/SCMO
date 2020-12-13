@@ -39,16 +39,16 @@ function App({ auth, logoutUser }) {
             </li>
             {auth.isAuthenticated ? (
               <>
-                {/* {auth.user.type === "stage" && ( */}
+                {auth.user.type === "stage" && (
                   <li>
                     <Link to="/storage-center">Storage Center</Link>
                   </li>
-                {/* )} */}
-                {/* {auth.user.type === "admin" &&  */}
+                )} 
+                {auth.user.type === "admin" && 
                 <li>
                   <Link to="/admin">Admin</Link>
                 </li>
-                {/* } */}
+                }
 
                 <li>
                   <a
@@ -67,6 +67,9 @@ function App({ auth, logoutUser }) {
               <li>
                 <Link to="/auth/login">Authenticate</Link>
               </li>
+            )}
+            {auth.isAuthenticated && (
+              <li className="right" style={{marginRight: "50px"}}>{auth.user.username}</li>
             )}
           </ul>
         </nav>

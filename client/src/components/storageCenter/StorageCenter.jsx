@@ -5,6 +5,7 @@ import M from "materialize-css";
 import SendShipment from "./SendShipment";
 import Inventory from "./Inventory";
 import ShipmentsList from "./ShipmentsList";
+import StagesMap from "./StagesMap";
 
 export default function StorageCenter() {
   useEffect(() => {
@@ -45,6 +46,11 @@ export default function StorageCenter() {
               <h5>Inventory</h5>
             </Link>
           </button>
+          <button className="btn btn-large white">
+            <Link to="/storage-center/map">
+              <h5>Map</h5>
+            </Link>
+          </button>
         </div>
         
       </Route>
@@ -63,5 +69,6 @@ export default function StorageCenter() {
         )}
       />
       <Route path="/storage-center/inventory" component={Inventory} />
+      <Route path="/storage-center/map" component={StagesMap} />
     </>);
 }
