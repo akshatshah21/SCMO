@@ -31,13 +31,13 @@ router.get("/allStageLocations",async (req,res) => {
 });
 
 /**
- * @route GET api/stage/stagesInBuffer
+ * @route POST api/stage/stagesInBuffer
  * @desc Returns the location of all stages around the buffer in Geojson.
  * @access Public
  */
-router.get("/stagesInBuffer",async (req,res) => {
-    // the radius accepts values in metres.
-    let data = await pgstage.getStagesInBuffer(req.body.latitude,req.body.longitude,req.body.radius);
+router.post("/stagesInBuffer",async (req,res) => {
+    // req.body.radius is in km
+    let data = await pgstage.getStagesInBuffer(req.body.latitude,req.body.longitude,req.body.radius * 1000);
     //console.log(data);
     let result = [];
     for(i=0;i<data.rows.length;i++){
@@ -48,11 +48,12 @@ router.get("/stagesInBuffer",async (req,res) => {
 });
 
 /**
- * @route GET api/stage/closestStages
+ * @route POST api/stage/closestStages
  * @desc Returns the location of limited closest stages wrt a reference point in Geojson.
  * @access Public
  */
-router.get("/closestStages",urlencodedParser,async (req,res) => {
+router.post("/closestStages",urlencodedParser,async (req,res) => {
+    console.log("closestStages" + req.body.limit);
     let data = await pgstage.getClosestStages(req.body.latitude,req.body.longitude,Number(req.body.limit));
     let result = [];
     for(i=0; i<data.rows.length; i++){
