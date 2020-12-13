@@ -18,10 +18,31 @@
         bottom: 0;
         width: 100%;
       }
+      #instructions {
+  position: absolute;
+  margin: 20px;
+  width: 25%;
+  top: 0;
+  bottom: 20%;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  overflow-y: scroll;
+  font-family: sans-serif;
+  font-size: 0.8em;
+  line-height: 2em;
+}
+
+.duration {
+  font-size: 2em;
+}
+
+
     </style>
   </head>
   <body>
     <div id='map'></div>
+    <div id="instructions"></div>
+
     <script>
     // add the JavaScript here
 
@@ -98,6 +119,15 @@ function getRoute(end) {
       });
     }
     // add turn instructions here at the end
+    var instructions = document.getElementById('instructions');
+var steps = data.legs[0].steps;
+
+var tripInstructions = [];
+for (var i = 0; i < steps.length; i++) {
+  tripInstructions.push('<br><li>' + steps[i].maneuver.instruction) + '</li>';
+  instructions.innerHTML = '<br><span class="duration">Trip duration: ' + Math.floor(data.duration / 60) + ' min 🚴 </span>' + tripInstructions;
+}
+
   };
   req.send();
 }
