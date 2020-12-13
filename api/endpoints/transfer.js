@@ -11,6 +11,7 @@ const driver = require("../neo4j-db/db");
 const { getTransferById } = require("../neo4j-db/transfer");
 const stage = require("../neo4j-db/stage");
 const pgstage = require("../postgis-db/stage");
+const util = require("../util.js");
 
 const nanoid = customAlphabet(CODESTRING,CODELENGTH); // Creating the nanoid object to generate the code
 let urlencodedParser = bodyParser.urlencoded({extended:false});
@@ -66,8 +67,15 @@ router.get('/:transferId/details', async (req,res) => {
  * @access Public
  */
 router.get("/transfersInBuffer",async (req,res) => {
-    let data = await pgstage.getTransfersInBuffer(res.body.latitude,res.body.longitude,res.body.radius);
-    res.status(200).json(data);
+    // the radius accepts values in metres.
+    let data = await pgtransfer.getTransfersInBuffer(req.body.latitude,req.body.longitude,req.body.radius);
+
+    let result = [];
+    for(i=0;i<data.rows.length;i++){
+        let temp = await util.getTransferDetailsById(data.rows[i].transferid);
+        result.push(temp);
+    }
+    res.status(200).json(result);
 });
 
 /**

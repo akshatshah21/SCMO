@@ -260,8 +260,9 @@ module.exports = {
                 lon,
                 radius
             ]);
-            console.log(res);
+            //console.log(res);
             await client.release();
+            return res;
         } catch (err) {
             console.log(`[ERR] getTransfersInBuffer(): ${err}`)
             await client.release();
