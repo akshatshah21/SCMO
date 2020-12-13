@@ -72,7 +72,6 @@ export default function AdminMap() {
                   id: "stages",
                   source: "stages",
                   type: "symbol",
-                  source: "stages",
                   layout: {
                     "icon-image": "warehouse-marker",
                     "icon-allow-overlap": true,
