@@ -233,7 +233,7 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         let prods = await transfer.getAllProducts(transferId);
         //updating the quantity of products on the receiver's end.
         prods.forEach((prod) => {
-            stage.updateQuantity(destinationId,prod.productId,prod.quantity);
+            await stage.updateQuantity(destinationId,prod.productId,prod.quantity);
         });
 
         //deleting the transfer row from transfer relation from postgis.
