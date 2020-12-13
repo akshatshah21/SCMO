@@ -108,14 +108,26 @@ export default function Shipment({
       zoom: MAPBOX_START_ZOOM, // starting zoom
     });
     // console.log(shipmentDetails);
+
+    let srcEl = document.createElement('div');
+    
+    srcEl.style.display = "block:";
+    srcEl.style.border = "none";
+    srcEl.style.padding = 0;
+    srcEl.style.background = "url(warehouse-marker.webp)";
+    srcEl.style.width = "50px";
+    srcEl.style.height = "50px";
+    srcEl.style.backgroundSize = "contain";
+    let destEl = srcEl.cloneNode(true);
+
     setSourceMarker(
-      new Marker()
+      new Marker(srcEl)
         .setLngLat(shipmentDetails.sourceLocation || [0, 0])
         .setPopup(new Popup({ offset: 25 }).setText(shipmentDetails.sourceName))
         .addTo(map)
     );
     setDestinationMarker(
-      new Marker()
+      new Marker(destEl)
         .setLngLat(shipmentDetails.destinationLocation || [0, 0])
         .setPopup(
           new Popup({ offset: 25 }).setText(shipmentDetails.destinationName)
@@ -173,9 +185,20 @@ export default function Shipment({
 
   useEffect(() => {
     if (shipmentDetails.status === "ongoing") {
+
+      let el = document.createElement('div');
+    
+    el.style.display = "block:";
+    el.style.border = "none";
+    el.style.padding = 0;
+    el.style.background = "url(truck.webp)";
+    el.style.width = "50px";
+    el.style.height = "50px";
+    el.style.backgroundSize = "contain";
+
       setShipmentMarker((prevMarker) => {
         if (prevMarker) prevMarker.remove();
-        return new mapboxgl.Marker({ color: "#ff1744" })
+        return new mapboxgl.Marker(el)
           .setLngLat([shipmentLocation.longitude, shipmentLocation.latitude])
           .setPopup(shipmentPopup)
           .addTo(map);
