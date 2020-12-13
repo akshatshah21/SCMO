@@ -133,15 +133,17 @@ module.exports = {
     getClosestStages: async (lat,lon,limit) => {
         let client = await pool.connect();
         try {
+            console.log(limit);
             let res = await client.query(`
                 SELECT *
                 FROM Stage
-                ORDER BY stageGeom <-> ST_SetSRID(ST_MakePoint($2,$1),4326)
+                ORDER BY stageGeom <-> ST_SetSRID(ST_MakePoint($1,$2),4326)
                 LIMIT $3;
-            `,[lat,lon,limit]
+            `,[lon,lat,limit]
             );
-            console.log(res);
+            //console.log(res);
             await client.release();
+            return res;
         } catch (err) {
             console.log(`[ERR] getClosestStages(): ${err}`)
             await client.release();
