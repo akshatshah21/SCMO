@@ -115,8 +115,8 @@ module.exports = {
                 lon,
                 radius
             ]);
-            console.log(res);
             await client.release();
+            return res;
         } catch (err) {
             console.log(`[ERR] getStagesInBuffer(): ${err}`)
             await client.release();

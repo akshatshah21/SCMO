@@ -4,6 +4,7 @@ const uuid = require("uuid");
 
 const stage = require('../neo4j-db/stage');
 const pgstage = require('../postgis-db/stage');
+const util = require("../util.js");
 const { validateCreation, validateProductAddition } = require("../validation/stage");
 
 const urlencodedParser = bodyParser.urlencoded({extended:false});
@@ -35,8 +36,15 @@ router.get("/allStageLocations",async (req,res) => {
  * @access Public
  */
 router.get("/stagesInBuffer",async (req,res) => {
-    let data = await pgstage.getStagesInBuffer(res.latitude,res.longitude,res.radius);
-    res.status(200).json(data);
+    // the radius accepts values in metres.
+    let data = await pgstage.getStagesInBuffer(req.body.latitude,req.body.longitude,req.body.radius);
+    //console.log(data);
+    let result = [];
+    for(i=0;i<data.rows.length;i++){
+        let temp = await util.getStageDetailsById(data.rows[i].stageid);
+        result.push(temp);
+    }
+    res.status(200).json(result);
 });
 
 /**

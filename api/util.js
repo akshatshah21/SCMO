@@ -37,7 +37,7 @@ module.exports = {
 
             result.transferLat = temp.features[0].transferlat;
             result.transferLon = temp.features[0].transferlon;
-            console.log(result);
+            //console.log(result);
 
             return result;
         }catch(err){
