@@ -154,6 +154,36 @@ module.exports = {
   },
 
   /**
+   * Returning an array of stages having most quantity of a product.
+   * @param {String} productId - The id of the product.
+   */
+  getStagesHavingMostQuantity: async (productId) => {
+    try {
+      let session = driver.session();
+      let result = await session.run(`
+        MATCH (:Product{ productId : $productId })<-[hs:HAS_STOCK]-()
+        WITH MAX(hs.quantity) AS maxi
+        MATCH (:Product{ productId : $productId })<-[hss:HAS_STOCK]-(s:Stage)
+        WHERE hss.quantity = maxi
+        RETURN s;
+        `,{
+          productId
+        }
+      );
+      let stages = [];
+      if (result.records.length>0) {
+        result.records.forEach((temp) => {
+          stages.push(temp.get("s").properties);
+        });
+      }
+      await session.close();
+      return stages;
+    } catch (err) {
+      console.log(`[ERR] getStagesHavingMostQuantity: ${err}`);
+    }
+  },
+
+  /**
    * Remove a stage
    * @param {String} name - The name of the stage
    */
