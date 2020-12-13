@@ -149,7 +149,7 @@ module.exports = {
       await session.close();
       return stage;
     } catch (err) {
-      console.log(`[ERR] getStageById(): ${err}`);
+      console.log(`[ERR] neo4j-db.getStageById(): ${err}`);
     }
   },
 
