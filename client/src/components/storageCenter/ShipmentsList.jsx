@@ -56,6 +56,7 @@ function ShipmentsList({ history, title, type, auth }) {
   return (
     <div className="container">
       <h2 className="center-align">{title}</h2>
+      {pending && <h5 className="center-align">Sorted by distance</h5>}
       <div className="row" style={{ marginTop: "1.5rem" }}>
         <nav className="nav-extended col s12 row indigo darken-4">
           <ul className="row tabs tabs-transparent">

@@ -57,8 +57,11 @@ router.post("/login", async (req, res) => {
       username: user.username,
       // maybe add stage info
       type: user.type,
-      stageId: user.stageId,
     };
+    if(payload.type === "stage") {
+      stageId: user.stageId
+      payload.stage = await getStage(user.stageId);
+    }
     // Sign token
     jwt.sign(payload, SECRET_OR_KEY, { expiresIn: 31556926 }, (err, token) => {
       res.json({
