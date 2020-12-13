@@ -44,9 +44,20 @@ router.get("/stagesInBuffer",async (req,res) => {
  * @desc Returns the location of limited closest stages wrt a reference point in Geojson.
  * @access Public
  */
-router.get("/closestStages",async (req,res) => {
-    let data = await pgstage.getClosestStages(res.latitude,res.longitude,res.limit);
-    res.status(200).json(data);
+router.get("/closestStages",urlencodedParser,async (req,res) => {
+    let data = await pgstage.getClosestStages(req.body.latitude,req.body.longitude,Number(req.body.limit));
+    let result = [];
+    for(i=0; i<data.rows.length; i++){
+        let temp = data.rows[i];
+        let obj = await stage.getStageById(temp.stageid);
+
+        // assigning lat and lon
+        obj.stageLat = temp.stagelat;
+        obj.stageLon = temp.stagelon;
+
+        result.push(obj);
+    }
+    res.status(200).json(result);
 });
 
 /**

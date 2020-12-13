@@ -53,7 +53,7 @@ module.exports = {
      */
     updateConnectionData: async (connectionId,transferId,startTime,endTime) => {
         try{
-            console.log(connectionId);
+            console.log(endTime);
             let session = driver.session();
 
             //updating the value of transfercount and avgTransferTime in the connection node.

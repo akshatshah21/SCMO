@@ -123,11 +123,11 @@ module.exports = {
     getAllProducts: async(transferId) => {
         try{
             let session = driver.session();
-            let result = await session.run(
-                "MATCH (t:Transfer{ transferId : $transferId }) "+
-                "MATCH (p:Product)<-[ipo:IS_PART_OF]-(t) "+
-                "RETURN p,ipo;"
-                ,{
+            let result = await session.run(`
+                    MATCH (t:Transfer{ transferId : $transferId })
+                    MATCH (p:Product)<-[ipo:IS_PART_OF]-(t)
+                    RETURN p,ipo;
+                `,{
                     transferId : transferId
                 }
             );
@@ -348,11 +348,11 @@ module.exports = {
     changeTransferStatus : async(id,status) => {
         try{
             let session = driver.session();
-            let trans = await session.run(
-                "MATCH (t:Transfer{ transferId : $transferId}) "+
-                "SET t.transferStatus = $transferStatus "+
-                "RETURN t;"
-                ,{
+            let trans = await session.run(`
+                MATCH (t:Transfer{ transferId : $transferId})
+                SET t.transferStatus = $transferStatus
+                RETURN t;
+                `,{
                     transferId : id,
                     transferStatus : status
                 }

@@ -126,8 +126,8 @@ router.post('/initiate', async (req,res) => {
     trans.sourceCode = code.sourceCode;
 
     //reducing the quantity of products in the stage.
-    trans.products.forEach((prod) => {
-        stage.updateQuantity(trans.sourceId,prod.productId,-prod.quantity);
+    trans.products.forEach(async (prod) => {
+        await stage.updateQuantity(trans.sourceId,prod.productId,-prod.quantity);
     });
 
     //creating the transfer node object
@@ -232,8 +232,8 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         //getting all the products in the transfer.
         let prods = await transfer.getAllProducts(transferId);
         //updating the quantity of products on the receiver's end.
-        prods.forEach((prod) => {
-            stage.updateQuantity(destinationId,prod.productId,prod.quantity);
+        prods.forEach( async (prod) => {
+            await stage.updateQuantity(destinationId,prod.productId,prod.quantity);
         });
 
         //deleting the transfer row from transfer relation from postgis.

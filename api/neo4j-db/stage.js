@@ -55,12 +55,12 @@ module.exports = {
     try {
       let session = driver.session();
       // add checks for whether product or stage exist. Right now records.len == 0 if no matches
-      let result = await session.run(
-        "MATCH (p:Product{ productId : $productId }) " +
-        "MATCH (s:Stage{ stageId : $stageId }) " +
-        "MERGE (p)<-[hs:HAS_STOCK{ quantity : $quantity }]-(s) " +
-        "RETURN hs;",
-        {
+      let result = await session.run(`
+        MATCH (p:Product{ productId : $productId })
+        MATCH (s:Stage{ stageId : $stageId })
+        MERGE (p)<-[hs:HAS_STOCK{ quantity : $quantity }]-(s)
+        RETURN hs;
+        `,{
           productId: productId,
           stageId: stageId,
           quantity: quantity,
