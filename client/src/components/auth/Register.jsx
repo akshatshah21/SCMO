@@ -66,9 +66,6 @@ function Register({ registerUser, errors, auth, history }) {
               </option>
               <option value="stage">Storage Center</option>
               <option value="admin">Admin</option>
-              <option value="3" disabled>
-                Option 3
-              </option>
             </select>
             <label>Type of account</label>
             <span className="red-text">{errors.type}</span>

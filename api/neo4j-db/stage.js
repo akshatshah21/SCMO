@@ -257,7 +257,7 @@ module.exports = {
       );
       await session.close();
       if(result.records.length === 0) {
-        throw Error("Invalid input, check stageId");
+        throw Error("Either no such stage or it has no products");
       }
       let products = result.records.map(record => ({
         ...record.get("p").properties,

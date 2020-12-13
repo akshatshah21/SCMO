@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const { validateLogin, validateRegistration } = require("../validation/auth");
 const { SECRET_OR_KEY } = require("../config/keys");
-const { addUser, getUserByUsername } = require("../neo4j-db/user");
+const { addUser, getStageUserByUsername, getAdminByUsername } = require("../neo4j-db/user");
 const util = require("../util");
 
 /**
@@ -21,13 +21,21 @@ router.post("/register", async (req, res) => {
   if (existingUser) {
     return res.status(400).json({username: "Username taken"});
   }
-
-  let result = await addUser({
-    username: req.body.username,
-    password: req.body.password,
-    type: req.body.type,
-    stageId: req.body.stageId,
-  });
+  let result;
+  if(req.body.type === "stage") {
+    result = await addUser({
+      username: req.body.username,
+      password: req.body.password,
+      type: req.body.type,
+      stageId: req.body.stageId,
+    });
+  } else if(req.body.type === "admin") {
+    result = await addUser({
+      username: req.body.username,
+      password: req.body.password,
+      type: "admin"
+    });
+  }
   if (result === "OK") {
     res.status(200).send("OK");
   } else {
@@ -46,8 +54,12 @@ router.post("/login", async (req, res) => {
   if (!isValid) {
     return res.status(400).json(errors);
   }
-
-  let user = await getUserByUsername(req.body.username);
+  let user;
+  if(req.body.type === "stage") {
+    user = await getStageUserByUsername(req.body.username);
+  } else {
+    user = await getAdminByUsername(req.body.username);
+  }
   if (!user) {
     return res.status(400).json({username: "This username does not exist"})
   }

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import classnames from "classnames";
+import M from "materialize-css";
 
 import { loginUser } from "../../redux/actions/authActions";
 
@@ -15,6 +16,7 @@ function Login({ loginUser, errors, auth, history }) {
   const [input, setInput] = useState({
     username: "",
     password: "",
+    type: "",
   });
 
   const handleChange = (e) => {
@@ -29,14 +31,42 @@ function Login({ loginUser, errors, auth, history }) {
     const userData = {
       username: input.username,
       password: input.password,
+      type: input.type
     };
     console.log(userData);
     loginUser(userData);
   };
+
+  useEffect(() => {
+    var selects = document.querySelectorAll("select");
+    M.FormSelect.init(selects);
+  }, [])
+
   return (
     <div className="card col s6 offset-s3" style={{ marginTop: 0 }}>
       <h3 className="center-align">Login</h3>
       <form noValidate>
+      <div className="row">
+          <div className="input-field col s12">
+            <select
+              name="type"
+              onChange={handleChange}
+              error={errors && errors.type}
+              className={classnames({
+                invalid: errors.type,
+              })}
+              defaultValue=""
+            >
+              <option value="" disabled>
+                Choose account type
+              </option>
+              <option value="stage">Storage Center</option>
+              <option value="admin">Admin</option>
+            </select>
+            <label>Type of account</label>
+            <span className="red-text">{errors.type}</span>
+          </div>
+        </div>
         <div className="row">
           <div className="input-field col s12">
             <input

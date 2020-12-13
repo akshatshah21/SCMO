@@ -35,7 +35,18 @@ module.exports = {
           throw Error("Stage ID is invalid")
         }
       } else if(user.type === "admin") {
-        console.error("Admin addition not implemented yet");
+        await session.run(
+          "CREATE (u:User { " +
+            "type: $type," +
+            "username: $username," +
+            "password: $password" +
+          "});",
+          {
+            username: user.username,
+            password: hash,
+            type: user.type
+          }
+        );
       }
       
       await session.close();
@@ -52,7 +63,7 @@ module.exports = {
    * @param {String} username - username of the user
    * @return {Object} The User Node's properties
    */
-  getUserByUsername: async (username) => {
+  getStageUserByUsername: async (username) => {
     // console.log(`Get user: ${username}`);
     try {
       let session = driver.session();
@@ -72,6 +83,32 @@ module.exports = {
       return user;
     } catch (err) {
       console.log(`[ERR] getUserByUsername(): ${err}`);
+    }
+  },
+
+  /**
+   * Get an admin user by its username
+   * @param {String} username - username of the user
+   * @return {Object} The User Node's properties
+   */
+  getAdminByUsername: async (username) => {
+    try {
+      let session = driver.session();
+      let result = await session.run(
+        "MATCH (u: User { username: $username })" + 
+        "RETURN u;",
+        {
+          username,
+        }
+      );
+      let user;
+      if (result.records[0]) {
+        user = result.records[0].get("u").properties;
+      }
+      await session.close();
+      return user;
+    } catch (err) {
+      console.log(`[ERR] getAdminByUsername(): ${err}`);
     }
   },
 

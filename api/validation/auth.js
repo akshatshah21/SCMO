@@ -46,7 +46,7 @@ module.exports = {
                     errors.stageId = "Stage ID is required";
                 }
             } else if(data.type === "admin") {
-                errors.type = "Feature not implemented yet";
+                errors.type = "Unauthorized operation";
             } else {
                 errors.type = "Invalid type";
             }
@@ -67,6 +67,7 @@ module.exports = {
         let errors = {};
         data.username = emptyStringIfUndef(data.username);
         data.password = emptyStringIfUndef(data.password);
+        data.type = emptyStringIfUndef(data.type);
 
         // Username checks
         if (Validator.isEmpty(data.username)) {
@@ -76,6 +77,11 @@ module.exports = {
         // Password checks
         if (Validator.isEmpty(data.password)) {
             errors.password = "Password is required";
+        }
+
+        // Type checks
+        if(Validator.isEmpty(data.type)) {
+            errors.type = "Invalid type";
         }
 
         return {
