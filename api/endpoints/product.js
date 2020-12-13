@@ -23,7 +23,17 @@ router.get("/", async (req, res) => {
  * @access Public
  */
 router.get("/mostTransferredProducts", async (req, res) => {
-  let data = await product.getMostTransferredProducts(res.body.connectionId);
+  let data = await product.getMostTransferredProducts(req.body.connectionId);
+  res.status(200).json(data);
+});
+
+/**
+ * @route GET api/product/productsHavingMaxQuantity
+ * @desc Returns a list of all Products that have the most units stored at this stage.
+ * @access Public
+ */
+router.get("/mostStoredProducts", async (req, res) => {
+  let data = await product.getMostStoredProducts(req.body.stageId);
   res.status(200).json(data);
 });
 

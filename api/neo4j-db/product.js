@@ -138,6 +138,36 @@ module.exports = {
     },
 
     /**
+     * Get Products having the most units stored at a stage
+     * @return {Array} an array of Product Node objects
+     */
+    getMostStoredProducts: async(stageId) => {
+        try{
+            let session = driver.session();
+            let result = await session.run(`
+                MATCH (:Product)<-[hs:HAS_STOCK]-(:Stage{stageId : $stageId})
+                WITH MAX(hs.quantity) as maxi
+                MATCH (p:Product)<-[hss:HAS_STOCK]-(:Stage{stageId : $stageId})
+                WHERE hss.quantity = maxi
+                RETURN p;
+                `,{
+                    stageId : stageId
+                }
+            );
+            let products = [];
+            if(result.records.length>0){
+                result.records.forEach((product) => {
+                    products.push(product.get('p').properties);
+                });
+            }
+            await session.close();
+            return products;
+        }catch(err){
+            console.log(`[ERR] getMostStoredProducts(): ${err}`);
+        }
+    },
+
+    /**
      * Remove a product based on its id
      * @param {Number} id - The id of the product
      */
