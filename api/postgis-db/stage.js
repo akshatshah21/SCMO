@@ -54,7 +54,7 @@ module.exports = {
             await client.release();
             return ans;
         } catch (err) {
-            console.log(`[ERR] getStageById(): ${err}`)
+            console.log(`[ERR] postgis-db.getStageById(): ${err}`)
             await client.release();
         }
     },

@@ -100,8 +100,8 @@ router.post('/initiate', async (req,res) => {
         destinationId : req.body.recipientId,
         sourceCode : "",
         destinationCode : "",
-        // transferLat : Number(req.body.latitude),
-        // transferLon : Number(req.body.longitude),
+        transferLat : Number(req.body.latitude),
+        transferLon : Number(req.body.longitude),
         // transferStartTime : req.body.startTime, 
         products : req.body.products
     };
@@ -139,6 +139,7 @@ router.post('/initiate', async (req,res) => {
     
     //inserting the row into the transfer relation
     result = await pgtransfer.addTransfer(trans);
+    await pgtransfer.updateTransferLocation(trans.transferId,trans.transferLat,trans.transferLon);
     if(result.err) {
         res.status(500).json(result.err);
     }
