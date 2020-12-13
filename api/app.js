@@ -31,7 +31,7 @@ app.use("/api/auth", auth);
 app.use("/api/stage", stage);
 app.use("/api/transfer", transfer);
 app.use("/api/product", product);
-//app.use("/api/connection", connection);
+app.use("/api/connection", connection);
 
 app.get("/", (req, res) => res.send("Hello World"));
 

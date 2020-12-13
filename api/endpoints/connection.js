@@ -11,7 +11,7 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false });
  * @access Public
  */
 router.get("/mostDemandingConnections", async (req, res) => {
-  let data = await connection.getMostDemandingConnections(res.body.productId);
+  let data = await connection.getMostDemandingConnections(req.body.productId);
   res.status(200).json(data);
 });
 
