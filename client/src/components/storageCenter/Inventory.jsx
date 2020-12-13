@@ -10,7 +10,7 @@ function Inventory({stageId}) {
   useEffect(() => {
     const getProducts = async () => {
       // Get all products for this stage
-      let res = await axios.get(API_URL + `/api/stage/${stageId}/products`); // something like this, also specify stage id
+      let res = await axios.get(API_URL + `/api/stage/${stageId}/products`);
       setProducts(
         res.data.map((product) => ({
           id: product.productId,

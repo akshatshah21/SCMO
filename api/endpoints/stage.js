@@ -133,6 +133,7 @@ router.post("/addProduct", async(req,res) => {
  */
 router.get("/:stageId/products", async (req, res) => {
     let stageId = req.params.stageId;
+    console.log(stageId);
     let result = await stage.getProducts(stageId);
     if(result.err) {
         res.status(500).json( {error: result.err.message} );
