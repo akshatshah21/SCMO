@@ -36,7 +36,7 @@ export default function AdminMap() {
             radius: 999999999, // all stages, I hope
           }
         );
-        console.log(stages);
+        // console.log(stages);
         mapboxgl.accessToken = MAPBOX_API_TOKEN;
         map.on("load", () => {
           if (map.getSource("stages")) {
@@ -88,7 +88,7 @@ export default function AdminMap() {
                 });
 
                 map.on("click", "stages", (e) => {
-                  console.log(e.features[0]);
+                  // console.log(e.features[0]);
                   setSelectedStage(
                     JSON.parse(e.features[0].properties.stageDetails)
                   );
