@@ -215,7 +215,7 @@ module.exports = {
 
             let result = await session.run(
                 "MATCH (src:Stage)<-[:SOURCE]-(t:Transfer {transferId:$transferId})-[:DESTINATION]->(dest:Stage) " +
-                "RETURN t, src.stageId AS sourceId, dest.stageId AS destinationId;"
+                "RETURN t, src, dest;"
                 ,{
                     transferId : id
                 }
@@ -223,8 +223,10 @@ module.exports = {
             let transfer;
             if(result.records[0]){
                 transfer = result.records[0].get('t').properties;
-                transfer.sourceId = result.records[0].get("sourceId");
-                transfer.destinationId = result.records[0].get("destinationId");
+                transfer.sourceId = result.records[0].get("src").properties.stageId,
+                transfer.sourceName = result.records[0].get("src").properties.stageName,
+                transfer.destinationId = result.records[0].get("dest") .properties.stageId,
+                transfer.destinationName = result.records[0].get("dest").properties.stageName
             }
 
             await session.close();

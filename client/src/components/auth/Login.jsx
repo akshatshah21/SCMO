@@ -33,7 +33,7 @@ function Login({ loginUser, errors, auth, history }) {
       password: input.password,
       type: input.type
     };
-    console.log(userData);
+    // console.log(userData);
     loginUser(userData);
   };
 

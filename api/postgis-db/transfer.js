@@ -274,22 +274,24 @@ module.exports = {
      * @param {Number} lat latitude of reference point
      * @param {Number} lon lonigtude of referene point.
      * @param {Number} limit limit to the number of transfers to be displayed.
+     * @param {String} destinationId ID of the destination stage
      * @return {Array} array of all transfers in Geojson
      */
-    getClosestTransfers: async (lat,lon,limit) => {
+    getClosestIncomingTransfers: async (lat,lon,limit,destinationId) => {
         let client = await pool.connect();
         try {
-            console.log(lat);
-            console.log(lon);
-            console.log(limit);
+            // console.log(lat);
+            // console.log(lon);
+            // console.log(limit);
             let res = await client.query(`
                 SELECT *
-                FROM Transfer
+                FROM transfer
+                WHERE destinationid=$4
                 ORDER BY transferGeom <-> ST_SetSRID(ST_MakePoint($2,$1),4326)
                 LIMIT $3;
-            `,[lat,lon,limit]
+            `,[lat,lon,limit,destinationId]
             );
-            console.log(res);
+            // console.log(res);
             await client.release();
             return res;
         } catch (err) {

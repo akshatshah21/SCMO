@@ -231,7 +231,7 @@ router.post('/verifyDestinationCode',urlencodedParser,async(req,res) => {
         let trans = await transfer.changeTransferStatus(found.transferId,TRANSFER_STATUS.COMPLETED);
         // setting the endTime of the transfer.
         await transfer.setEndTime(trans.transferId, (new Date()).toISOString());
-        console.log(req.body);
+        // console.log(req.body);
 
         //getting the connectionNode belonging to the transfer.
         let conn = await connection.getConnectionOfTransfer(trans.transferId);
@@ -265,7 +265,7 @@ router.get("/:stageId/incoming", async (req, res) => {
     let trans = await transfer.getTransfersOfDestination(req.params.stageId);
     let stg = await pgstage.getStageById(req.params.stageId);
     //getting all the list of closest transfers in data.
-    let data = await pgtransfer.getClosestTransfers(stg.features[0].stagelat,stg.features[0].stagelon,1000000);
+    let data = await pgtransfer.getClosestIncomingTransfers(stg.features[0].stagelat,stg.features[0].stagelon,1000000, req.params.stageId);
 
     //filtering out all pending and completed transfers from trans and adding them to result
     for(i=0;i<trans.length;i++){
@@ -279,12 +279,14 @@ router.get("/:stageId/incoming", async (req, res) => {
     //filtering out ongoing transfers from data and adding them to result
     for(i=0; i<data.rows.length; i++){
         let temp = data.rows[i];
+        // console.log(temp);
         let ans = await transfer.getTransferById(temp.transferid);
+        // console.log("ANS" + ans);
         ans.transferLat = temp.transferlat;
         ans.transferLon = temp.transferlon;
         if(ans.transferStatus === TRANSFER_STATUS.ONGOING) result.ongoing.push(ans);
     }
-    console.log(result);
+    // console.log(result);
     return res.status(200).json(result);
 });
 

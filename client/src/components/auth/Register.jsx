@@ -20,13 +20,13 @@ function Register({ registerUser, errors, auth, history }) {
   const [stages, setStages] = useState([]);
 
   const handleChange = (e) => {
-    console.log(e.target.name);
-    console.log(e.target.value);
+    // console.log(e.target.name);
+    // console.log(e.target.value);
     setInput((prevInput) => ({
       ...prevInput,
       [e.target.name]: e.target.value,
     }));
-    console.log(input);
+    // console.log(input);
   };
 
   const handleSubmit = (e) => {
