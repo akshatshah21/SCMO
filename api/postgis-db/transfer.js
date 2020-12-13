@@ -279,15 +279,19 @@ module.exports = {
     getClosestTransfers: async (lat,lon,limit) => {
         let client = await pool.connect();
         try {
+            console.log(lat);
+            console.log(lon);
+            console.log(limit);
             let res = await client.query(`
                 SELECT *
-                FROM Stage
+                FROM Transfer
                 ORDER BY transferGeom <-> ST_SetSRID(ST_MakePoint($2,$1),4326)
                 LIMIT $3;
             `,[lat,lon,limit]
             );
             console.log(res);
             await client.release();
+            return res;
         } catch (err) {
             console.log(`[ERR] getClosestTransfers(): ${err}`)
             await client.release();

@@ -30,7 +30,8 @@ module.exports = {
     getStageById: async (id) => {
         let client = await pool.connect();
         try {
-            var query = `
+            console.log("searching for a stage");
+            let res = await client.query(`
                 SELECT row_to_json(fc) FROM (
                     SELECT 'FeatureCollection' As type, array_to_json(array_agg(f)) As features FROM (
                         SELECT
@@ -39,11 +40,12 @@ module.exports = {
                             stageId as stageId,
                             stageLat as stageLat,
                             stageLon as stageLon
-                        FROM Stage As st WHERE stageId='${id}'
+                        FROM Stage As st WHERE stageId=$1
                     ) As f
                 ) As fc
-            `;
-            let res = await client.query(query);
+            `,[
+                id
+            ]);
             let ans;
             console.log("RES:");
             // console.log(res);
@@ -102,7 +104,6 @@ module.exports = {
     getStagesInBuffer: async (lat,lon,radius) => {
         let client = await pool.connect();
         try {
-                //WHERE ST_DWithin(stageGeom,ST_SetSRID(ST_MakePoint($1,$2),4326),$3);
             let res = await client.query(`
                     SELECT *
                     FROM Stage
