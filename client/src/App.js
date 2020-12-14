@@ -69,7 +69,7 @@ function App({ auth, logoutUser }) {
               </li>
             )}
             {auth.isAuthenticated && (
-              <li className="right" style={{marginRight: "50px"}}>{auth.user.username}</li>
+              <li className="right" style={{marginRight: "50px"}}>{auth.user.type === "stage" ? auth.user.stage.stageName : auth.user.username}</li>
             )}
           </ul>
         </nav>
