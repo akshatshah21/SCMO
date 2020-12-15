@@ -1,0 +1,1 @@
+export const MAPBOX_API_TOKEN= "ADD_YOUR_TOKEN_HERE";

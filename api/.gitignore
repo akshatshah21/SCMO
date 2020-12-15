@@ -1,4 +1,3 @@
 node_modules
-config/keys.js
 postgis-db/index.js
 neo4j-db/index.js
