@@ -106,9 +106,10 @@ npm i
 4. Edit details in the file `api/config/keys.js`. 
 5. Edit details in the file `client/src/config/keys.js`.
 6. If you want, edit details in the file `api/config/options.js`.
-7. Edit details in the file `client/src/config/options.js`.
+7. If you want, edit details in the file `client/src/config/options.js`.
 8. Set up a PostgreSQL database instance.
-### SQL Queries to Create the Database.
+```createdb -T template_postgis test```
+#### SQL Queries to Create the Database.
 ```
 CREATE TABLE Stage
 	(
@@ -128,6 +129,7 @@ CREATE TABLE Transfer
 	  transferGeom geometry(POINT,4326)
 	);
 ```
+9. Load both the databases with initial data about stages and products.
 ## Running the project for development
 1. Make sure that both database instances are running
 2. Run the api.
