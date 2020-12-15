@@ -94,7 +94,7 @@ psql -d template_postgis -c "UPDATE pg_database SET datistemplate = 'true' WHERE
 
 
 ## Installation of the Project
-1. Clone this repository using `git clone` or `gh clone repo`.
+1. Clone this repository using `git clone` or `gh repo clone`.
 2. Move to the api directory. Install all dependencies:
 ```
 npm i
