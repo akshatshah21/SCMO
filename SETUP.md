@@ -91,6 +91,23 @@ Mark this database as a template:
 ```
 psql -d template_postgis -c "UPDATE pg_database SET datistemplate = 'true' WHERE datname = 'template_postgis';"
 ```
+
+
+## Installation of the Project
+1. Clone this repository using `git clone` or `gh clone repo`.
+2. Move to the api directory. Install all dependencies:
+```
+npm i
+```
+3. Move to the client directory. Install all dependencies:
+```
+npm i
+```
+4. Edit details in the file `api/config/keys.js`. 
+5. Edit details in the file `client/src/config/keys.js`.
+6. If you want, edit details in the file `api/config/options.js`.
+7. Edit details in the file `client/src/config/options.js`.
+8. Set up a PostgreSQL database instance.
 ### SQL Queries to Create the Database.
 ```
 CREATE TABLE Stage
@@ -111,22 +128,6 @@ CREATE TABLE Transfer
 	  transferGeom geometry(POINT,4326)
 	);
 ```
-
-## Installation of the Project
-1. Clone this repository using `git clone` or `gh clone repo`.
-2. Move to the api directory. Install all dependencies:
-```
-npm i
-```
-3. Move to the client directory. Install all dependencies:
-```
-npm i
-```
-4. Edit details in the file `api/config/keys.js`. 
-5. Edit details in the file `client/src/config/keys.js`.
-6. If you want, edit details in the file `api/config/options.js`.
-7. Edit details in the file `client/src/config/options.js`.
-8. Set up a PostgreSQL database instance.
 ## Running the project for development
 1. Make sure that both database instances are running
 2. Run the api.
