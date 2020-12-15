@@ -4,7 +4,7 @@ import M from "materialize-css";
 import { connect } from "react-redux";
 import { API_URL } from "../../config/options";
 
-function SendShipment({ history, stageId }) {
+function SendShipment({ history, user }) {
   const [stageList, setStageList] = useState([]);
   const [productList, setProductList] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState(new Map());
@@ -16,9 +16,9 @@ function SendShipment({ history, stageId }) {
     const selectEffect = async () => {
       // get list of stages, products and then set state
       let { data: stages } = await axios(API_URL + "/api/stage");
-      let { data: products } = await axios(API_URL + `/api/stage/${stageId}/products`);
+      let { data: products } = await axios(API_URL + `/api/stage/${user.stageId}/products`);
       setStageList(() =>
-        stages.filter(stage => stage.stageId !== stageId).map((stage) => ({
+        stages.filter(stage => stage.stageId !== user.stageId).map((stage) => ({
           name: stage.stageName,
           id: stage.stageId,
         }))
@@ -40,7 +40,7 @@ function SendShipment({ history, stageId }) {
       M.FormSelect.init(selects);
     };
     selectEffect();
-  }, [stageId]);
+  }, [user.stageId]);
 
   useEffect(() => {
     var elems = document.querySelectorAll(".modal");
@@ -86,8 +86,10 @@ function SendShipment({ history, stageId }) {
     }
     let formData = {
       recipientId: recipientId,
-      senderId: stageId,
-      products
+      senderId: user.stageId,
+      products,
+      latitude: user.stage.stageLat,
+      longitude: user.stage.stageLon
     };
     formData.timestamp = new Date().toISOString();
     axios.post(API_URL + "/api/transfer/initiate", formData).then((res) => {
@@ -204,7 +206,7 @@ function SendShipment({ history, stageId }) {
 }
 
 const mapStateToProps = (state) => ({
-  stageId: state.auth.user.stageId,
+  user: state.auth.user,
 });
 
 export default connect(mapStateToProps, null)(SendShipment);

@@ -93,7 +93,7 @@ router.get("/closestTransfers",async (req,res) => {
 */
 router.post('/initiate', async (req,res) => {
     // TODO: Add validation
-
+    console.log(req.body);
     //changing datatype of products from string to number
     req.body.products.forEach((prod) => {
         prod.quantity = Number(prod.quantity);
@@ -147,7 +147,7 @@ router.post('/initiate', async (req,res) => {
     
     //inserting the row into the transfer relation
     result = await pgtransfer.addTransfer(trans);
-    await pgtransfer.updateTransferLocation(trans.transferId,trans.transferLat,trans.transferLon);
+    // await pgtransfer.updateTransferLocation(trans.transferId,trans.transferLat,trans.transferLon);
     if(result.err) {
         res.status(500).json(result.err);
     }

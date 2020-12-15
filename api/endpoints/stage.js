@@ -21,11 +21,11 @@ router.get("/",async (req,res) => {
 });
 
 /**
- * @route GET api/stage/stagesHavingMostQuantity
+ * @route POST api/stage/stagesHavingMostQuantity
  * @desc return all stages having most quantity of a product
  * @access Public for now, change to protected later
  */
-router.get("/stagesHavingMostQuantity", async (req, res) => {
+router.post("/stagesHavingMostQuantity", async (req, res) => {
     let productId = req.body.productId;
     let result = await stage.getStagesHavingMostQuantity(productId);
     if(result.err) {

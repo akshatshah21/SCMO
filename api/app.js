@@ -4,7 +4,7 @@ const passport = require("passport");
 const http = require("http");
 const socketIo = require("socket.io");
 const cors = require("cors");
-
+const path = require("path");
 const auth = require("./endpoints/auth");
 const stage = require("./endpoints/stage");
 const product = require("./endpoints/product");
@@ -33,17 +33,11 @@ app.use("/api/transfer", transfer);
 app.use("/api/product", product);
 app.use("/api/connection", connection);
 
-app.get("/", (req, res) => res.send("Hello World"));
-
 const server = http.createServer(app);
 const io = socketIo(server);
 
 server.listen(PORT, HOSTNAME, () => console.log(`Listening on port ${PORT}`));
 
-// Map for transferId --> location
-// let locationMap = new Map();
-
-// Map for socket id --> interval
 let intervalMap = new Map();
 
 io.on("connection", socket => {
