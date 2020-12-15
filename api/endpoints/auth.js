@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
   if (!isValid) {
     return res.status(400).json(errors);
   }
-  let existingUser = await getUserByUsername(req.body.username);
+  let existingUser = await getStageUserByUsername(req.body.username);
   if (existingUser) {
     return res.status(400).json({username: "Username taken"});
   }

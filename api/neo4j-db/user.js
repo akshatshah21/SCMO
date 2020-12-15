@@ -21,7 +21,8 @@ module.exports = {
             "WITH s " +
             "MERGE (s)<-[:IS_USER_OF]-(u: User { " +
             "username: $username," +
-            "password: $password" +
+            "password: $password," +
+            "type: $type" +
             "}) " +
             "RETURN u;",
           {
